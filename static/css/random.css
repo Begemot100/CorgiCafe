@@ -1,0 +1,65 @@
+/* static/css/random.css */
+#randomModal.modal-unique {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2000;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 350px;
+    max-width: 90%;
+}
+
+#randomModal.modal-unique.active {
+    display: block;
+}
+
+#randomModal .modal-content-unique {
+    position: relative;
+}
+
+#randomModal .close-btn-unique {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    color: #333;
+    font-weight: bold;
+}
+
+#randomModal .work-log-item {
+    margin: 10px 0;
+}
+
+#randomModal .work-log-item label {
+    font-size: 14px;
+    display: block;
+}
+
+#randomModal .work-log-item input {
+    width: 90%;
+    padding: 5px;
+    margin-top: 5px;
+}
+/* static/css/work.css or a new random.css */
+.worklog-random-checkbox {
+    margin: 0 5px;
+}
+
+#randomNextBtn {
+    padding: 5px 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#randomNextBtn:hover {
+    background-color: #FC8C86;
+}

@@ -1,0 +1,81 @@
+/* Основные стили модального окна */
+.filter-modal {
+    position: absolute;
+    background: white !important;
+    border: 1px solid #ccc;
+    padding: 20px; /* Увеличенный отступ внутри окна */
+    border-radius: 10px;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    min-width: 200px;
+}
+
+.filter-modal-content {
+        background: white !important;
+        box-shadow: 5px 16px 10px rgba(0, 0, 0, 0.2); /* Выразительная тень */
+        border-radius: 12px;
+            border: 1px solid #ccc;
+
+
+
+
+}
+/* Стили списка фильтров */
+.filter-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.filter-list li {
+    padding: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.3s ease;
+}
+
+.filter-list li:hover {
+    background: #FC8C86;
+    color: white;
+}
+
+/* Контейнер для выбора даты */
+#dateRangeContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* Инпуты дат */
+#dateRangeContainer input[type="date"] {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+/* Кнопка "Применить" */
+#dateRangeContainer button {
+    background: #FC8C86;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+#dateRangeContainer button:hover {
+    background: #E06F6A;
+}
+
+/* Выбранный диапазон дат */
+#selectedDateRange {
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 12px;
+}
+

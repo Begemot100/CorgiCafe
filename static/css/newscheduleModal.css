@@ -1,0 +1,77 @@
+#newscheduleModal .modal-content {
+    width: 300px; /* Укажите желаемую ширину */
+    max-width: 90%; /* Ограничьте ширину для маленьких экранов */
+    margin: 0 auto; /* Центрирование модального окна */
+    padding: 20px; /* Отступы внутри окна */
+    border-radius: 8px; /* Скругление углов */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Тень для эстетики */
+    background-color: #fff; /* Белый фон */
+}
+
+.newschedule-modal .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* Центрирование */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 40%; /* Ширина окна */
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.newschedule-modal .modal-content h2 {
+    margin-top: 0;
+    color: #333;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+.newschedule-modal .modal-content form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.newschedule-modal .modal-content label {
+    font-size: 14px;
+    color: #555;
+    font-weight: bold;
+}
+
+.newschedule-modal .modal-content input[type="time"] {
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.newschedule-modal .modal-content button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.newschedule-modal .modal-content button:hover {
+    background-color: #45a049;
+}
+
+.newschedule-modal .close-btn {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    cursor: pointer;
+}
+
+.newschedule-modal .close-btn:hover {
+    color: black;
+}
+.hidden {
+    display: none !important; /* Убираем окно с экрана */
+}

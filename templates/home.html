@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selección de rol</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff !important; /* Белый фон */
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.9);
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        img {
+            width: 120px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .role-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .role-btn {
+            width: 200px;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #fff;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .admin-btn {
+            background-color: #FC8C86;
+        }
+
+        .admin-btn:hover {
+            background-color: #E05A5A;
+            transform: scale(1.1);
+        }
+
+        .worker-btn {
+            background-color: #FC8C86;
+        }
+
+        .worker-btn:hover {
+            background-color: #E05A5A;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <img src="/static/images/logo.png" alt="Corgi Cafe Logo">
+    <div class="role-buttons">
+        <form action="/admin_login" method="GET">
+            <button class="role-btn admin-btn" type="submit">Administrador</button>
+        </form>
+        <form action="/worker_login" method="GET">
+            <button class="role-btn worker-btn" type="submit">Empleado</button>
+        </form>
+    </div>
+</body>
+</html>

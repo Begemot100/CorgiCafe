@@ -1,0 +1,17 @@
+<div id="newscheduleModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeNewScheduleModal()">&times;</span>
+        <h2>Nuevo horario</h2>
+        <form>
+            <label for="checkInStart">Hora de entrada desde:</label>
+            <input type="time" id="checkInStart" />
+            <label for="checkInEnd">Hora de entrada hasta:</label>
+            <input type="time" id="checkInEnd" />
+            <label for="checkOutStart">Hora de salida desde:</label>
+            <input type="time" id="checkOutStart" />
+            <label for="checkOutEnd">Hora de salida hasta:</label>
+            <input type="time" id="checkOutEnd" />
+            <button type="button" onclick="applyRandomSchedule()">Aplicar</button>
+        </form>
+    </div>
+</div>

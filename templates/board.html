@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Empleado</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/board.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Стили для кнопки */
+        .left-block {
+            position: absolute;
+            top: 200px;
+            left: 30px;
+        }
+
+        .left-block a {
+            text-decoration: none;
+            display: inline-block;
+            background-color: transparent;
+            border: none;
+        }
+
+        .left-block img {
+            width: 32px;
+            height: 32px;
+            transition: transform 0.3s ease;
+        }
+
+        .left-block img:hover {
+            transform: scale(1.1); /* Лёгкое увеличение при наведении */
+        }
+    </style>
+</head>
+<body>
+    <!-- Кнопка слева -->
+    <div class="left-block">
+        <a href="/dashboard">
+            <img src="{{ url_for('static', filename='images/img_1.png') }}" alt="work">
+        </a>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Corgi Cafe Logo">
+        </div>
+        <div class="current-date">
+            {{ current_date }}
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard-container">
+        {% for data in dashboard_data %}
+        <div class="employee-card">
+            <div class="employee-info">
+                <span class="employee-name">{{ data.employee.full_name }}</span>
+                <span class="employee-position">{{ data.employee.position }}</span>
+            </div>
+
+            <div class="check-actions">
+                <button
+                    class="check-in-btn {{ 'disabled' if data.check_in_time != '--:--' }}"
+                    data-id="{{ data.employee.id }}"
+                    {% if data.check_in_time != '--:--' %}disabled{% endif %}>
+                    Entrada
+                </button>
+                <span id="check-in-time-{{ data.employee.id }}" class="time-display">
+                    {{ data.check_in_time }}
+                </span>
+                <span id="check-out-time-{{ data.employee.id }}" class="time-display">
+                    {{ data.check_out_time }}
+                </span>
+                <button
+                    class="check-out-btn {{ 'disabled' if data.check_in_time == '--:--' or data.check_out_time != '--:--' }}"
+                    data-id="{{ data.employee.id }}"
+                    {% if data.check_in_time == '--:--' or data.check_out_time != '--:--' %}disabled{% endif %}>
+                    Salida
+                </button>
+                <span id="daily-hours-{{ data.employee.id }}" class="daily-hours">
+                    Daily: {{ "%.2f" | format(data.daily_hours) }}h
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script src="{{ url_for('static', filename='js/board.js') }}"></script>
+</body>
+</html>

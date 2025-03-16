@@ -1,0 +1,390 @@
+/* work.css */
+.logs-summary-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.work-logs-container {
+    flex: 1;
+}
+
+.summary-panel {
+    width: 200px;
+    padding: 15px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.summary-panel h3 {
+    font-size: 16px;
+    margin: 0 0 5px 0;
+}
+
+.summary-panel p {
+    font-size: 14px;
+    line-height: 1.3;
+    margin: 10px 0;
+    white-space: normal;
+    width: 200px;
+}
+
+.holiday-status p {
+    font-size: 14px;
+    line-height: 1.3;
+    margin: 2px 0;
+    white-space: normal;
+}
+
+.holiday-select {
+    padding: 5px;
+    border-radius: 8px;
+    transition: background-color 0.3s, color 0.1s;
+    background-color: transparent;
+    color: #000;
+}
+
+.holiday-select option {
+    background-color: transparent;
+    color: #000;
+}
+
+.holiday-select:focus {
+    outline: none;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+}
+
+.page-container {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 100px;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.logo img {
+    max-width: 60px;
+    margin-bottom: 20px;
+}
+
+.content {
+    flex: 1;
+    padding: 20px;
+    background-color: #f8f9fa;
+}
+
+.header {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.filter-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.left-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.filter-btn {
+    background-color: #FC8C86;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    color: white;
+    box-shadow: 0 7px 25px rgba(0, 0, 0, 0.3);
+    font-family: 'Montserrat', sans-serif;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.6s ease;
+    animation: fadeIn 0.9s ease-in-out;
+    transition: transform 0.4s;
+}
+
+.filter-btn:hover {
+    background-color: #FF7B76;
+}
+
+.right-buttons {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.ellipsis-btn {
+    position: fixed;
+    top: 50px; /* Отступ сверху */
+    right: 50px; /* Отступ справа */
+    z-index: 1000; /* Поверх других элементов */
+    background: white; /* Или другой цвет, если нужно */
+    padding: 5px;
+    border-radius: 50%;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3); /* Легкая тень */
+}
+
+
+.ellipsis-btn img {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.9s;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Employee Section */
+.employee-section {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 7px 25px rgba(0, 0, 0, 0.3);
+    margin-bottom: 20px;
+}
+
+.work-logs-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.employee-header {
+    flex-basis: 20%;
+    margin-right: 20px;
+}
+
+.work-logs {
+    flex: 3;
+    margin-right: 20px;
+}
+
+.work-logs-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.work-logs-table th,
+.work-logs-table td {
+    padding: 10px;
+    text-align: left;
+}
+
+.work-logs-table th {
+    font-weight: bold;
+}
+
+.work-logs-table td {
+    border: none;
+}
+
+.dropdown-menu {
+    position: fixed;
+    top: 50px;  /* Чуть ниже кнопки */
+    right: 70px;
+    z-index: 999;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    display: none; /* По умолчанию скрыто */
+    min-width: 200px;
+}
+
+/* Отображаем меню, когда оно активно */
+.dropdown-menu.active {
+    display: block;
+}
+
+.dropdown-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.dropdown-menu li {
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-menu li:hover {
+    background-color: #FC8C86;
+    border-radius: 8px;
+}
+
+.dropdown-menu .delete {
+    color: #FC8C86;
+    font-weight: bold;
+}
+
+.dropdown-menu .delete:hover {
+    background-color: rgba(252, 140, 134, 0.1);
+}
+
+.checkbox-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+}
+
+/* Rounded Checkbox */
+.round-checkbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    cursor: pointer;
+    appearance: none;
+    outline: none;
+    background-color: white;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Checkbox Hover and Checked State */
+.round-checkbox:hover {
+    border-color: #FC8C86;
+}
+
+.round-checkbox:checked {
+    background-color: #FC8C86;
+    border-color: #FC8C86;
+}
+
+.checkbox-column,
+.checkbox-cell {
+    text-align: center;
+    width: 50px;
+}
+
+.action-buttons {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.action-buttons.hidden {
+    display: none;
+}
+
+.action-buttons button {
+    margin: 5px;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #FC8C86;
+    color: #fff;
+    transition: background-color 0.3s;
+}
+
+.action-buttons button:hover {
+    background-color: #FC8C86;
+}
+
+.redirect-button-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.redirect-button {
+    display: inline-block;
+    padding: 10px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.redirect-icon {
+    width: 40px;
+    height: auto;
+    transition: transform 0.2s;
+}
+
+.redirect-button:hover .redirect-icon {
+    transform: scale(1.1);
+}
+
+.work-logs-container select {
+    display: block;
+    margin: 5px 0;
+}
+
+/* Уникальный стиль для модального окна */
+.modal-unique {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2000;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    max-width: 90%;
+}
+
+.modal-unique.active {
+    display: block;
+}
+
+.modal-content-unique {
+    position: relative;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.close-btn-unique {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    color: #333;
+    font-weight: bold;
+}
+
+.work-log-item {
+    margin: 10px 0;
+}
+
+.work-log-item label {
+    font-size: 14px;
+}
+
+#editWorkLogModalUnique {
+    display: block;
+}
+/* static/css/work.css or a new random.css */

@@ -1,0 +1,179 @@
+/* Общие стили */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    background-color: #f9f9f9;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 80px;
+    background-color: #fff;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    position: fixed;
+    padding: 20px 0;
+}
+
+.logo img {
+    width: 50px;
+    margin-bottom: 20px;
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+nav li {
+    margin-bottom: 20px;
+}
+
+nav a {
+    text-decoration: none;
+}
+
+nav img {
+    display: block;
+    margin: 0 auto;
+}
+
+.menu-items {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.menu-item {
+    width: 40px;
+    height: 40px;
+    background-color: #f0f0f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.menu-item.active {
+    background-color: #ff6347;
+}
+
+.logout a {
+    color: red;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* Main content */
+.main-content {
+    margin-left: 80px;
+    padding: 20px;
+    width: calc(100% - 80px);
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    background-color: #fff;
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 20px;
+}
+
+.cafe-info h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.social-media p {
+    margin: 0;
+}
+
+.edit-profile-btn {
+    background-color: #FC8C86;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+/* Filters */
+.filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.filter-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #FC8C86;
+    color: #fff;
+}
+
+.filter-btn.active {
+    background-color: #FDBD38;
+}
+
+.add-employee-btn {
+    margin-left: auto;
+    background-color: #FDBD38;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+
+
+
+
+.dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 10;
+}
+
+.dropdown-item {
+    padding: 10px 15px;
+    text-align: left;
+    width: 100%;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+}
+
+.dropdown-item:hover {
+    background-color: #f5f5f5;
+}
+
+.employee-actions:hover .dropdown {
+    display: block;
+}
+.employee:hover {
+  background-color: #f0f0f0;
+  cursor: pointer;
+}

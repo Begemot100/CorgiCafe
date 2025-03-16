@@ -1,0 +1,108 @@
+/* Body Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header .logo img {
+    height: 50px;
+}
+
+.current-date {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Dashboard */
+.dashboard-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+.employee-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.employee-info {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.employee-info span {
+    font-size: 14px;
+    color: #333;
+}
+
+.check-actions {
+    flex: 3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+button {
+    padding: 10px 15px;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.check-in-btn {
+    background-color: #FC8C86;
+    border-radius: 10px;
+
+    color: white;
+}
+
+.check-in-btn.disabled {
+    background-color: #ccc; /* Серый */
+    cursor: not-allowed;
+}
+
+.check-out-btn {
+    background-color: #FC8C86;
+    border-radius: 10px;
+    color: white;
+}
+
+.check-out-btn.disabled {
+    background-color: #ccc; /* Серый */
+    cursor: not-allowed;
+}
+
+
+.time-display {
+    font-size: 14px;
+    margin: 0 10px;
+}
+
+.daily-hours {
+    font-weight: bold;
+    color: #555;
+}

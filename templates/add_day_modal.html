@@ -1,0 +1,29 @@
+    <div id="addDayModal" class="modal-unique hidden">
+        <div class="modal-content-unique">
+            <span class="close-btn-unique" onclick="closeAddDayModal()">×</span>
+            <h2>Agregar Día</h2>
+            <form id="addDayForm">
+                <div class="work-log-item">
+                    <label for="employeeName">Empleado:</label>
+                    <input type="text" id="employeeName" name="employeeName" readonly>
+                </div>
+                <div class="work-log-item">
+                    <label for="employeeId">ID Empleado:</label>
+                    <input type="hidden" id="employeeId" name="employeeId">
+                </div>
+                <div class="work-log-item">
+                    <label for="logDate">Fecha:</label>
+                    <input type="date" id="logDate" name="logDate" required>
+                </div>
+                <div class="work-log-item">
+                    <label for="checkInTime">Entrada:</label>
+                    <input type="time" id="checkInTime" name="checkInTime" required>
+                </div>
+                <div class="work-log-item">
+                    <label for="checkOutTime">Salida:</label>
+                    <input type="time" id="checkOutTime" name="checkOutTime" required>
+                </div>
+                <button type="submit">Agregar</button>
+            </form>
+        </div>
+    </div>

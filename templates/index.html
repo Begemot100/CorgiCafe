@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/table.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modal.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/edit_profile_modal.css') }}">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Corgi Cafe Logo">
+        </div>
+        <nav>
+            <ul>
+                <li class="centered-block">
+                    <a href="/board">
+                        <img src="{{ url_for('static', filename='images/img_1.png') }}" alt="Board" style="width: 32px; height: 32px;">
+                    </a>
+                </li>
+                <li class="centered-block">
+                    <a href="/work">
+                        <img src="{{ url_for('static', filename='images/img_6.png') }}" alt="work" style="width: 32px; height: 32px;">
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="cafe-info">
+                <h2 id="cafe-name">Corgi Cafe Gotico</h2>
+                <p id="cafe-address">Plaza de la Vila de Madrid 4, Barcelona</p>
+                <p id="cafe-email">Email: info@corgicafe.es</p>
+                <p id="cafe-phone">Phone: +34 603 50 19 23</p>
+            </div>
+            <div class="social-media">
+                <p>@corgicafe</p>
+                <p>@corgicafe_bcn</p>
+                <p>Всего сотрудников: {{ employees|length }}</p>
+<!--                <button class="edit-profile-btn">Editar Perfil</button>-->
+                <div class="logout">
+                <a href="/logout">
+                    <img src="/static/images/img.png" alt="Cerrar sesión" style="width: 100px; height: auto;">
+                </a>
+            </div>
+            </div>
+
+        </div>
+
+        <!-- Employee Section -->
+        <div class="employee-section">
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">Todo</button>
+                <button class="filter-btn" data-filter="sala">Sala</button>
+                <button class="filter-btn" data-filter="cocina">Cocina</button>
+<!--                <button class="export-btn" id="export-excel-btn">Exportar to Excel</button>-->
+                <button class="add-employee-btn" id="add-modal-btn">+ Nuevo empleado</button>
+            </div>
+
+            <div class="employee-list">
+                {% for employee in employees %}
+                <div class="employee-card"  data-id="{{ employee.id }}" data-section = "{{ employee.section }}">
+                    <div class="employee-row">
+                        <span class="employee-item">{{ employee.full_name }}</span>
+                        <span class="employee-item">{{ employee.position }}</span>
+                        <span class="employee-item">{{ employee.nie }}</span>
+                        <span class="employee-item">{{ employee.phone }}</span>
+                        <span class="employee-item">{{ employee.email }}</span>
+                        <span class="employee-item">{{ employee.start_date }}</span>
+                        <span class="employee-item">{{ employee.work_start_time }}</span>
+                        <span class="employee-item">{{ employee.work_end_time }}</span>
+                        <button class="options-btn" data-id="{{ employee.id }}">...</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for options -->
+    <div id="options-modal" class="options-modal">
+        <div class="options-modal-content">
+            <button id="edit-btn" class="option-btn">Editar</button>
+            <button id="delete-btn" class="option-btn">Eliminar</button>
+        </div>
+    </div>
+
+
+    <!-- Include modal -->
+    {% include 'modal_add_employee.html' %}
+    {% include 'editemployee.html' %}
+    {% include 'edit_profile_modal.html' %}
+
+
+
+    <!-- Include scripts -->
+    <script src="{{ url_for('static', filename='js/newemployee.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/filtermainsalacosinatodo.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/optionsMenu.js') }}"></script>
+</body>
+</html>

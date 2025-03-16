@@ -1,0 +1,22 @@
+<!-- Кнопка для открытия окна -->
+
+<!-- Модальное окно -->
+<div id="editWorkLogModalUnique" class="modal-unique hidden-unique">
+    <div class="modal-content-unique">
+        <span class="close-btn-unique" onclick="closeEditModal()">×</span>
+        <h2>Редактировать рабочий лог</h2>
+        <!-- Контейнер для логов -->
+        <div id="workLogsContainer">
+            <!-- Логи будут добавлены здесь -->
+        </div>
+        <button onclick="saveWorkLogs()">Сохранить</button>
+    </div>
+</div>
+
+<!-- Второе модальное окно -->
+<div id="modal-window" class="modal hidden">
+    <div class="modal-content">
+        <span id="close-modal-btn" class="close-btn" onclick="closeSecondModal()">×</span>
+        <p>Это содержимое модального окна.</p>
+    </div>
+</div>

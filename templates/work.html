@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Logs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/work.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/random.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/filter_modal.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/group_modal.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/newscheduleModal.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/adddaymodal.css') }}">
+</head>
+<body>
+    <div class="page-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Corgi Cafe Logo">
+            </div>
+            <div class="redirect-button-container">
+                <a href="{{ url_for('admin_panel') }}" class="redirect-button">
+                    <img src="{{ url_for('static', filename='images/img_6.png') }}" alt="Redirect Icon" class="redirect-icon">
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Header -->
+            <header class="header">
+                <h1>Empleados</h1>
+            </header>
+
+            <!-- Filters -->
+            <div class="filter-bar">
+                <div class="left-buttons">
+                    {% set filter_names = {
+                        'today': 'Hoy',
+                        'yesterday': 'Ayer',
+                        'last7days': 'Últimos 7 días',
+                        'last30days': 'Últimos 30 días',
+                        'thismonth': 'Este mes',
+                        'lastmonth': 'Mes pasado',
+                        'personalizado': 'Personalizado'
+                    } %}
+                    <button id="filterButton" class="filter-btn" onclick="toggleFilterModal()"
+                            data-current-filter="{{ filter_type }}"
+                            data-start-date="{{ start_date }}"
+                            data-end-date="{{ end_date }}">
+                        {% if filter_type == "personalizado" and start_date and end_date %}
+                            {{ start_date }} - {{ end_date }}
+                        {% else %}
+                            {{ filter_names[filter_type] | default('Este mes') }}
+                        {% endif %}
+                    </button>
+                    <button class="filter-btn" onclick="openGroupModal(event)">Grupo</button>
+                </div>
+
+                <div id="customDateInputs" style="display: none; marfin-top: 10px;">
+                    <label for="startDate">Fecha de inicio:</label>
+                    <input type="date" id="startDate" name="startDate" value="{{ start_date }}">
+
+                    <label for="endDate">Fecha de fin:</label>
+                    <input type="date" id="endDate" name="endDate" value="{{ end_date }}">
+
+                    <button onclick="applyCustomDates()">Aplicar</button>
+
+
+
+
+                </div>
+                <div class="right-buttons">
+                    <button class="ellipsis-btn" onclick="toggleDropdown(event)">
+                        <img src="{{ url_for('static', filename='images/img_3.png') }}" alt="Ellipsis Icon">
+                    </button>
+                    <div id="dropdown-menu" class="dropdown-menu">
+                        <ul>
+                            <li id="choose-all-btn">Todo</li>
+<!--                            <li id="edit-btn-unique">Editar</li>-->
+                            <li id="exportButton" class="export-btn">Export Excel</li>
+                            <li id="add-day-btn">Add Day</li>
+                            <li id="random-btn">Random</li>
+                            <li class="delete">Eliminar</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Container -->
+            <div class="main-container">
+                {% for employee_data in employees %}
+                <div class="employee-section" data-group="{{ employee_data.employee.section }}">
+                    <!-- Rounded Checkbox -->
+                    <div class="checkbox-container">
+                        <input type="checkbox" class="round-checkbox employee-checkbox" id="employee_{{ employee_data.employee.id }}" />
+                    </div>
+
+                    <!-- Employee Info -->
+                    <div class="employee-header">
+                        <h2>{{ employee_data.employee.full_name }} - {{ employee_data.employee.position }}</h2>
+                    </div>
+
+                    <!-- Work Logs and Summary -->
+                    <div class="logs-summary-container">
+                        <!-- Work Logs -->
+                        <div class="work-logs-container" id="logs-container-{{ employee_data.employee.id }}">
+                            <table class="work-logs-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Entrada</th>
+                                        <th>Salida</th>
+                                        <th>Total</th>
+                                        <th>Tipo de dia</th>
+                                        <th class="checkbox-column" id="checkbox-column-{{ employee_data.employee.id }}" style="display: none;">Seleccionar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                        {% for log in employee_data.work_logs | sort(attribute='log_date', reverse=True) %}
+                                    <tr class="log-row-{{ employee_data.employee.id }}" data-log-id="{{ log.id }}">
+                                        <td>{% if log.log_date is string %}{{ log.log_date }}{% else %}{{ log.log_date.strftime('%d/%m/%Y') }}{% endif %}</td>
+                                        <td class="check-in-time">
+                                            {% if log.check_in_time %}
+                                                {% if log.check_in_time is string %}
+                                                    {{ log.check_in_time }}
+                                                {% else %}
+                                                    {{ log.check_in_time.strftime('%H:%M') if log.check_in_time is not none else '--:--' }}
+                                                {% endif %}
+                                            {% else %}
+                                                --:--
+                                            {% endif %}
+                                        </td>
+                                        <td class="check-out-time">
+                                            {% if log.check_out_time %}
+                                                {% if log.check_out_time is string %}
+                                                    {{ log.check_out_time }}
+                                                {% else %}
+                                                    {{ log.check_out_time.strftime('%H:%M') if log.check_out_time is not none else '--:--' }}
+                                                {% endif %}
+                                            {% else %}
+                                                --:--
+                                            {% endif %}
+                                        </td>
+                                        <td class="worked-hours">{{ log.worked_hours | format_hours if log.worked_hours else '0h 0min' }}</td>
+                                        <td>
+                                            <select onchange="updateHolidayStatus(this, {{ employee_data.employee.id }})"
+                                                    data-log-id="{{ log.id }}"
+                                                    data-employee-id="{{ employee_data.employee.id }}"
+                                                    id="holiday-select-{{ log.id }}"
+                                                    class="holiday-select"
+                                                    data-previous-value="{{ log.holidays or 'workingday' }}">
+                                                <option value="workingday" {% if log.holidays == 'workingday' %}selected{% endif %}>Día laboral</option>
+                                                <option value="paid" {% if log.holidays == 'paid' %}selected{% endif %}>Pagado</option>
+                                                <option value="unpaid" {% if log.holidays == 'unpaid' %}selected{% endif %}>No pagado</option>
+                                                <option value="weekend" {% if log.holidays == 'weekend' %}selected{% endif %}>Fin de semana</option>
+                                                <option value="baja por enfermedad" {% if log.holidays == 'baja por enfermedad' %}selected{% endif %}>Baja por enfermedad</option>
+                                                <option value="maternidad/paternidad" {% if log.holidays == 'maternidad/paternidad' %}selected{% endif %}>Maternidad/paternidad</option>
+                                                <option value="vacaciones" {% if log.holidays == 'vacaciones' %}selected{% endif %}>Vacaciones</option>
+                                                <option value="permiso no retribuido" {% if log.holidays == 'permiso no retribuido' %}selected{% endif %}>Permiso no retribuido</option>
+                                            </select>
+                                        </td>
+                                        <td class="checkbox-cell checkbox-cell-{{ employee_data.employee.id }}" style="display: none;">
+                                            <input type="checkbox" class="worklog-random-checkbox" data-log-id="{{ log.id }}" data-employee-id="{{ employee_data.employee.id }}" style="display: none;">
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+
+                            <!-- Action Buttons -->
+                            <div class="action-buttons hidden" id="action-buttons-{{ employee_data.employee.id }}">
+                                <button class="select-all-btn" onclick="selectAllEmployeeCheckboxes('{{ employee_data.employee.id }}')">Todo</button>
+                                <button class="new-schedule-btn" onclick="openNewScheduleModal()">Aleatorio</button>
+                                <button class="delete-log-btn" onclick="deleteSelectedWorkLog('{{ employee_data.employee.id }}')">Eliminar seleccionados</button>
+                            </div>
+                        </div>
+
+                        <!-- Per-Employee Summary Panel -->
+                        <div class="summary-panel" id="summary-panel-{{ employee_data.employee.id }}">
+                            <h3>Resumen</h3>
+                            <p><strong>Horas totales:</strong> <span class="total-hours">{{ employee_data.summary.total_hours }}</span> h</p>
+                            <p><strong>Días totales:</strong> <span class="total-days">{{ employee_data.summary.working_days }}</span></p>
+                            <p><strong>Horas extras:</strong> <span class="overtime-hours">{{ employee_data.summary.overtime_hours }}</span> h</p>
+                            <div class="holiday-status">
+                                <p>Vacaciones pagadas: <span class="paid-holidays badge yellow">{{ employee_data.summary.paid_holidays }}</span></p>
+                                <p>Vacaciones no pagadas: <span class="unpaid-holidays badge orange">{{ employee_data.summary.unpaid_holidays }}</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Adding Days -->
+    <div id="addDayModal" class="modal-unique hidden">
+        <div class="modal-content-unique">
+            <span class="close-btn-unique" onclick="closeAddDayModal()">×</span>
+            <h2>Agregar Día</h2>
+            <form id="addDayForm">
+                <div class="work-log-item">
+                    <label for="employeeName">Empleado:</label>
+                    <input type="text" id="employeeName" name="employeeName" readonly>
+                </div>
+                <div class="work-log-item">
+                    <label for="employeeId">ID Empleado:</label>
+                    <input type="hidden" id="employeeId" name="employeeId">
+                </div>
+                <div class="work-log-item">
+                    <label for="logDate">Fecha:</label>
+                    <input type="date" id="logDate" name="logDate" required>
+                </div>
+                <div class="work-log-item">
+                    <label for="checkInTime">Entrada:</label>
+                    <input type="time" id="checkInTime" name="checkInTime" required>
+                </div>
+                <div class="work-log-item">
+                    <label for="checkOutTime">Salida:</label>
+                    <input type="time" id="checkOutTime" name="checkOutTime" required>
+                </div>
+                <button type="submit">Agregar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Random Schedule -->
+    <div id="randomModal" class="modal-unique hidden">
+        <div class="modal-content-unique">
+            <span class="close-btn-unique" onclick="closeRandomModal()">×</span>
+            <h2>Generar Horario Aleatorio</h2>
+            <form id="randomForm">
+                <div class="work-log-item">
+                    <label for="startRangeMin">Rango de Entrada (Inicio):</label>
+                    <input type="time" id="startRangeMin" name="startRangeMin" value="10:00" required>
+                </div>
+                <div class="work-log-item">
+                    <label for="startRangeMax">Rango de Entrada (Fin):</label>
+                    <input type="time" id="startRangeMax" name="startRangeMax" value="10:30" required>
+                </div>
+                <div class="work-log-item">
+                    <label for="endRangeMin">Rango de Salida (Inicio):</label>
+                    <input type="time" id="endRangeMin" name="endRangeMin" value="18:00" required>
+                </div>
+                <div class="work-log-item">
+                    <label for="endRangeMax">Rango de Salida (Fin):</label>
+                    <input type="time" id="endRangeMax" name="endRangeMax" value="18:30" required>
+                </div>
+                <button type="submit">Generar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/work.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/group_modal.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/filter_modal.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/export_to_excel.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/workboard.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/person.js') }}"></script>
+
+
+
+<!--    <script src="/static/js/export_to_excel.js"></script>-->
+
+
+    <script>
+
+    </script>
+
+    <div id="addDayModal" class="modal-unique hidden">
+        <div class="modal-content-unique">
+            <span class="close-btn-unique" onclick="closeAddDayModal()">×</span>
+            <h2>Agregar Día</h2>
+            <form id="addDayForm">
+                <div class="work-log-item">
+                    <label for="employeeName">Empleado:</label>
+                    <input type="text" id="employeeName" name="employeeName" readonly>
+                </div>
+                <div class="work-log-item">
+                    <label for="employeeId">ID Empleado:</label>
+                    <input type="hidden" id="employeeId" name="employeeId">
+                </div>
+                <div class="work-log-item">
+                    <label for="logDate">Fecha:</label>
+                    <input type="date" id="logDate" name="logDate" required>
+                </div>
+                <div class="work-log-item">
+                    <label for="checkInTime">Entrada:</label>
+                    <input type="time" id="checkInTime" name="checkInTime" required>
+                </div>
+                <div class="work-log-item">
+                    <label for="checkOutTime">Salida:</label>
+                    <input type="time" id="checkOutTime" name="checkOutTime" required>
+                </div>
+                <button type="submit">Agregar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="randomModal" class="modal-unique hidden">
+        <div class="modal-content-unique">
+            <span class="close-btn-unique" onclick="closeRandomModal()">×</span>
+            <h2>Generar Horario Aleatorio</h2>
+            <form id="randomForm">
+                <div class="work-log-item">
+                    <label for="startRangeMin">Rango de Entrada (Inicio):</label>
+                    <input type="time" id="startRangeMin" name="startRangeMin" value="10:00" required>
+                </div>
+                <div class="work-log-item">
+                    <label for="startRangeMax">Rango de Entrada (Fin):</label>
+                    <input type="time" id="startRangeMax" name="startRangeMax" value="10:30" required>
+                </div>
+                <div class="work-log-item">
+                    <label for="endRangeMin">Rango de Salida (Inicio):</label>
+                    <input type="time" id="endRangeMin" name="endRangeMin" value="18:00" required>
+                </div>
+                <div class="work-log-item">
+                    <label for="endRangeMax">Rango de Salida (Fin):</label>
+                    <input type="time" id="endRangeMax" name="endRangeMax" value="18:30" required>
+                </div>
+                <button type="submit">Generar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="filterModal" class="modal" style="display: none;">
+        {% include 'filter_modal.html' %}
+    </div>
+    <div id="groupModal" class="modal hidden">
+        {% include 'group_modal.html' %}
+    </div>
+</body>
+</html>

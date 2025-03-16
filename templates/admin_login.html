@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de Sesión del Administrador</title>
+    <style>
+          body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        img {
+            width: 150px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .login-modal {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .login-modal h2 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .login-modal input, .login-btn {
+            width: 100%; /* Все элементы одной ширины */
+            max-width: 350px; /* Максимальная ширина */
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .login-modal input {
+            border: 1px solid #FC8C86;
+            background-color: #f9f9f9;
+            color: #333;
+            outline: none;
+            text-align: center;
+        }
+
+        .login-modal input::placeholder {
+            color: #aaa;
+        }
+
+        .login-btn {
+            background-color: #FC8C86;
+            border: none;
+            color: #ffffff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .login-btn:hover {
+            background-color: #E05A5A;
+            transform: scale(1.05);
+        }
+
+        .register-link {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #FC8C86;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .register-link:hover {
+            text-decoration: underline;
+        }
+
+        .login-modal input:not(:last-child) {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-modal">
+        <img src="/static/images/logo.png" alt="Corgi Cafe Logo">
+        <h2>Iniciar sesión</h2>
+        <form id="admin-login-form" action="/admin_login" method="POST">
+            <input type="email" id="email" name="email" placeholder="Ingrese su correo" required>
+
+            <input type="password" id="password" name="password" placeholder="Ingrese su contraseña" required>
+
+            <button type="submit" class="login-btn">Iniciar sesión</button>
+        </form>
+        <a href="/admin_register" class="register-link">Registrar Administrador</a>
+    </div>
+</body>
+</html>

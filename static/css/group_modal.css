@@ -1,0 +1,65 @@
+/* Стили для модального окна */
+.group-modal {
+    position: absolute;
+    background: white !important;
+    opacity: 1 !important;
+    border: 4px solid #fff;
+    padding: 30px; /* Увеличенные отступы */
+    border-radius: 10px; /* Закругленные углы */
+    box-shadow: 5px 16px 20px rgba(0, 0, 0, 6); /* Выразительная тень */
+    z-index: 1000;
+    display: none;
+    min-width: 200px; /* Увеличенная ширина */
+    min-height: 140px; /* Увеличенная высота */
+    width: auto; /* Автоширина в зависимости от контента */
+}
+
+/* Центрирование содержимого и отступы */
+.group-modal-content {
+    background: white !important;
+    border-radius: 10px; /* Закругленные углы */
+    box-shadow: 5px 16px 10px rgba(0, 0, 0, 0.2); /* Выразительная тень */
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Увеличенный промежуток между элементами */
+    align-items: flex-start;
+    padding: 20px; /* Внутренний отступ у содержимого */
+}
+
+/* Стили для чекбоксов */
+.group-filter-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.group-filter-list li {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Увеличенный отступ между чекбоксами и текстом */
+    font-size: 18px; /* Увеличенный шрифт */
+    padding: 5px 0; /* Дополнительные отступы */
+}
+
+/* Увеличенные чекбоксы и их цвет */
+.group-filter-list input {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #FC8C86; /* Цвет чекбоксов */
+    border-radius: 4px;
+}
+
+/* Увеличенный текст чекбоксов */
+.group-filter-list label {
+    font-size: 18px;
+    cursor: pointer;
+}
+
+
+
+/* Скрытый класс */
+.hidden {
+    display: none !important;
+}

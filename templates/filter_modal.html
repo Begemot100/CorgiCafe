@@ -1,0 +1,20 @@
+<div class="filter-modal-content">
+   <ul class="filter-list">
+    <li data-filter="today">Hoy</li>
+    <li data-filter="yesterday">Ayer</li>
+    <li data-filter="last7days">Ultimos 7 dias</li>
+    <li data-filter="last30days">Ultimos 30 dias</li>
+    <li data-filter="thismonth">Este mes</li>
+    <li data-filter="lastmonth">Mes pasado</li>
+    <li data-filter="custom">Personalisado</li>
+</ul>
+
+    <div id="dateRangeContainer" class="hidden">
+        <label for="startDate">Fecha inicio:</label>
+        <input type="date" id="startDate" />
+        <label for="endDate">Fecha fin:</label>
+        <input type="date" id="endDate" />
+        <button onclick="applyCustomDateRange()">Aplicar</button>
+    </div>
+    <p id="selectedDateRange" class="hidden">Rango seleccionado: <span id="displayDateRange"></span></p>
+</div>

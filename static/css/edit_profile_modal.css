@@ -1,0 +1,121 @@
+/* Основные стили для модального окна */
+#edit-profile-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5); /* Затемнение фона */
+    z-index: 1000;
+}
+
+/* Анимации появления и исчезновения */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes modalFadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+}
+
+/* Состояние активного окна */
+#edit-profile-modal.active {
+    display: flex;
+    animation: modalFadeIn 0.3s ease-out forwards;
+}
+
+/* Скрытое состояние с анимацией исчезновения */
+#edit-profile-modal.hidden {
+    display: flex; /* Чтобы анимация воспроизводилась */
+    animation: modalFadeOut 0.3s ease-out forwards;
+    pointer-events: none; /* Чтобы клик не влиял на скрытое окно */
+}
+
+/* Стили содержимого модального окна */
+#edit-profile-modal .modal-content {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 400px;
+    max-width: 90%;
+    text-align: left;
+    position: relative;
+    transform: scale(1); /* Убирает мерцание при анимации */
+}
+
+#edit-profile-modal .modal-content h3 {
+    margin-top: 0;
+    font-size: 18px;
+    color: #333;
+    text-align: center;
+}
+
+#edit-profile-modal .modal-content label {
+    display: block;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #555;
+}
+
+#edit-profile-modal .modal-content input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+#edit-profile-modal .modal-content button {
+    margin: 15px auto; /* Центрирование кнопки */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s ease; /* Плавная анимация */
+}
+
+/* Кнопки с уникальным стилем */
+#save-profile-btn {
+    background-color: #FC8C86;
+    color: #fff;
+}
+
+#close-profile-modal {
+    background-color: #FC8C86;
+    color: #fff;
+}
+
+/* Эффект при наведении */
+#edit-profile-modal .modal-content button:hover {
+    background-color: #e06d6d; /* Более тёмный оттенок */
+    transform: scale(1.1); /* Увеличение */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень */
+}
+
+/* Контейнер кнопок для выравнивания */
+#edit-profile-modal .button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Расстояние между кнопками */
+}
