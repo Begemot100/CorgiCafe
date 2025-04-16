@@ -17,7 +17,7 @@ from sqlalchemy import and_
 print("🔄 Запуск приложения...")
 import logging
 import sys
-# 1
+# test
 # Настраиваем логирование
 logging.basicConfig(
     level=logging.DEBUG,  # DEBUG показывает всё, INFO может скрывать ошибки
