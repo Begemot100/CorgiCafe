@@ -886,7 +886,7 @@ def export_excel():
         if status_filter:
             logs_query = logs_query.filter(WorkLog.holidays == status_filter)
 
-        logs = logs_query.all()
+        logs = logs_query.order_by(WorkLog.log_date.asc()).all()
         employees_data.append({"employee": emp, "logs": logs})
 
     # Создаем Excel-файл
@@ -997,8 +997,7 @@ def export_excel():
         download_name="filtered_employee_logs.xlsx"
     )
 
-
-
+# test
 if __name__ == '__main__':
     try:
         app.run(debug=True, port=5001, host='0.0.0.0')
