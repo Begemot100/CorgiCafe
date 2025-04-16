@@ -439,7 +439,7 @@ def check_in(employee_id):
         if not work_log:
             work_log = WorkLog(employee_id=employee_id, log_date=current_date)
 
-        work_log.check_in_time = datetime.now().time()
+        work_log.check_in_time = datetime.now()
         db.session.add(work_log)
         db.session.commit()
         logger.info(f"Check-in for employee {employee_id} at {work_log.check_in_time}")
@@ -460,7 +460,7 @@ def check_out(employee_id):
         if work_log.check_out_time:
             return jsonify({"error": "Already checked out for today"}), 400
 
-        work_log.check_out_time = datetime.now().time()
+        work_log.check_out_time = datetime.now()
         work_log.calculate_worked_hours()
         db.session.commit()
         logger.info(f"Check-out for employee {employee_id} at {work_log.check_out_time}")
