@@ -1,13 +1,15 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     const filterButton = document.getElementById("filterButton");
     const filterModal = document.getElementById("filterModal");
+    const customInputs = document.getElementById("customDateInputs");
+    const startDateInput = document.getElementById("startDate");
+    const endDateInput = document.getElementById("endDate");
 
     if (!filterButton || !filterModal) {
         console.error("❌ Ошибка: `#filterButton` или `#filterModal` не найдены в DOM.");
         return;
     }
 
-    // Объект с названиями фильтров
     const filterNames = {
         'today': 'Hoy',
         'yesterday': 'Ayer',
@@ -18,94 +20,116 @@ document.addEventListener("DOMContentLoaded", function() {
         'personalizado': 'Personalizado'
     };
 
-    // Устанавливаем текст кнопки при загрузке страницы
     const initialFilter = filterButton.dataset.currentFilter || 'thismonth';
     filterButton.textContent = filterNames[initialFilter] || 'Este mes';
 
-    // 📌 Функция переключения модального окна
-    window.toggleFilterModal = function() {
-        if (filterModal.classList.contains("hidden")) {
-            // 📌 Получаем координаты кнопки и позиционируем модальное окно
-            const rect = filterButton.getBoundingClientRect();
-            filterModal.style.position = "absolute";
-            filterModal.style.top = `${rect.bottom + window.scrollY + 5}px`;  // Отступ вниз
-            filterModal.style.left = `${rect.left + window.scrollX}px`;
+    customInputs.style.display = "none";
 
-            // Открываем окно
-            filterModal.classList.remove("hidden");
-            filterModal.style.display = "block";
-            filterModal.classList.add("active");
-            console.log("📌 Открываем модальное окно Filter под кнопкой...");
-        } else {
-            // Закрываем окно
-            filterModal.classList.add("hidden");
-            filterModal.style.display = "none";
-            filterModal.classList.remove("active");
-            console.log("📌 Закрываем модальное окно Filter...");
-        }
+    window.toggleFilterModal = function () {
+        const rect = filterButton.getBoundingClientRect();
+        filterModal.style.position = "absolute";
+        filterModal.style.top = `${rect.bottom + window.scrollY + 5}px`;
+        filterModal.style.left = `${rect.left + window.scrollX}px`;
+
+        const isHidden = filterModal.classList.contains("hidden");
+        filterModal.classList.toggle("hidden", !isHidden);
+        filterModal.style.display = isHidden ? "block" : "none";
+        filterModal.classList.toggle("active", isHidden);
     };
 
-    // 📌 Функция для обработки выбора фильтра
     function applyFilter(filterKey) {
         if (!filterNames[filterKey]) return;
 
-        // Обновляем текст кнопки фильтра
         filterButton.textContent = filterNames[filterKey];
-
-        // Сохраняем выбор в `data-` атрибуты кнопки
         filterButton.dataset.currentFilter = filterKey;
         filterButton.dataset.startDate = "";
         filterButton.dataset.endDate = "";
 
-        // Закрываем модальное окно
+        if (filterKey === "personalizado") {
+            customInputs.style.display = "block";
+            startDateInput?.focus();
+            toggleFilterModal();
+            return;
+        } else {
+            customInputs.style.display = "none";
+        }
+
         toggleFilterModal();
 
-        // Обновляем URL (без перезагрузки страницы)
         const url = new URL(window.location);
         url.searchParams.set("filter", filterKey);
         url.searchParams.delete("start_date");
         url.searchParams.delete("end_date");
 
         console.log(`📌 Применяем фильтр: ${filterNames[filterKey]} (${filterKey})`);
-        window.location = url.toString(); // Перезагружаем страницу с новым фильтром
+        window.location = url.toString();
     }
 
-    // 📌 Добавляем обработчики клика по элементам списка фильтров
+    function applyCustomDates() {
+        const startDate = startDateInput.value;
+        const endDate = endDateInput.value;
+
+        if (!startDate || !endDate) {
+            alert("Por favor, selecciona ambas fechas");
+            startDateInput?.focus();
+            return;
+        }
+
+        const url = new URL(window.location);
+        url.searchParams.set("filter", "personalizado");
+        url.searchParams.set("start_date", startDate);
+        url.searchParams.set("end_date", endDate);
+
+        console.log(`📌 Aplicando filtro personalizado: ${startDate} a ${endDate}`);
+        window.location = url.toString();
+    }
+
+    filterButton.addEventListener("click", function (event) {
+        event.stopPropagation();
+        toggleFilterModal();
+    });
+
     document.querySelectorAll("#filterModal li").forEach(item => {
-        item.addEventListener("click", function(event) {
-            event.stopPropagation(); // Не закрывать модальное окно сразу
+        item.addEventListener("click", function (event) {
+            event.stopPropagation();
             const filterKey = this.dataset.filter;
             applyFilter(filterKey);
         });
     });
 
-    // 📌 Обработчик для кнопки фильтра
-    filterButton.addEventListener("click", function(event) {
-        event.stopPropagation();
-        toggleFilterModal();
-    });
-
-    // 📌 Закрытие модального окна при клике вне него
-    document.addEventListener("click", function(event) {
+    document.addEventListener("click", function (event) {
         if (!filterModal.contains(event.target) && event.target !== filterButton) {
             filterModal.classList.add("hidden");
             filterModal.style.display = "none";
         }
     });
+
+    const applyBtn = customInputs.querySelector("button");
+    if (applyBtn) {
+        applyBtn.addEventListener("click", applyCustomDates);
+    }
+
+    const filterSelect = document.getElementById("filterSelect");
+    if (filterSelect) {
+        filterSelect.addEventListener("change", () => {
+            const url = new URL(window.location);
+            const selected = filterSelect.value === "custom" ? "personalizado" : filterSelect.value;
+            url.searchParams.set("filter", selected);
+
+            if (selected === "personalizado") {
+                const start = startDateInput?.value;
+                const end = endDateInput?.value;
+                if (start && end) {
+                    url.searchParams.set("start_date", start);
+                    url.searchParams.set("end_date", end);
+                }
+            } else {
+                url.searchParams.delete("start_date");
+                url.searchParams.delete("end_date");
+            }
+
+            console.log(`📌 Обновление страницы с фильтром: ${url.toString()}`);
+            window.location = url.toString();
+        });
+    }
 });
-
-// Обновляем URL (без перезагрузки страницы)
-const url = new URL(window.location);
-url.searchParams.set("filter", filterSelect.value === "custom" ? "personalizado" : filterSelect.value);
-if (filterSelect.value === "personalizado") {
-    url.searchParams.set("start_date", startDate);
-    url.searchParams.set("end_date", endDate);
-} else {
-    url.searchParams.delete("start_date");
-    url.searchParams.delete("end_date");
-}
-
-console.log(`📌 Обновление страницы с фильтром: ${url.toString()}`);
-window.location = url.toString(); // Перезагрузка страницы с новым фильтром
-
-window.location = url.toString(); // Перезагружаем страницу с новым фильтром
