@@ -274,7 +274,7 @@ document.querySelectorAll('.holiday-select').forEach(select => {
     const logId = row.getAttribute('data-log-id');
     const holidayStatus = this.value;
     // если нужно сбросить — можно передавать true
-    const reset = ['paid','unpaid','fin_de_semana'].includes(holidayStatus);
+    const reset = ['paid','unpaid','weekend'].includes(holidayStatus);
 
     try {
       const res = await fetch(`/update_work_log/${logId}`, {
