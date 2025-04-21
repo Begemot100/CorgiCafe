@@ -2,6 +2,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import hashlib
+from sqlalchemy import DateTime
 # from datetime import datetime
 from datetime import datetime, date, time, timedelta
 db = SQLAlchemy()
@@ -78,7 +79,7 @@ class WorkLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=False)
     log_date = db.Column(db.Date, nullable=False)
-    check_in_time  = db.Column(db.DateTime, nullable=True)
+    check_in_time = db.Column(db.DateTime, nullable=True)
     check_out_time = db.Column(db.DateTime, nullable=True)
     worked_hours = db.Column(db.Float)
     holidays = db.Column(db.String(50))

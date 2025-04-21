@@ -699,65 +699,51 @@ def get_work_logs():
     ]
 
     return jsonify({"success": True, "logs": work_logs_list})
+# в начале файла добавить
+from datetime import datetime
 
 @app.route('/update_work_log/<int:log_id>', methods=['POST'])
 def update_work_log(log_id):
-    try:
-        data = request.get_json()
-        holiday_status = data.get("holiday_status")
-        employee_id = data.get("employee_id")
-        check_in_time = data.get("check_in_time")
-        check_out_time = data.get("check_out_time")
-        reset_worklog = data.get("reset_worklog", False)
+    data = request.get_json()
+    holiday_status = data.get("holiday_status")
+    check_in_time  = data.get("check_in_time")   # строка "HH:MM" или None
+    check_out_time = data.get("check_out_time")  # строка "HH:MM" или None
+    reset_worklog  = data.get("reset_worklog", False)
 
-        logger.info(f"📌 [Запрос получен] log_id={log_id}, employee_id={employee_id}, holiday_status={holiday_status}, reset={reset_worklog}")
+    work_log = WorkLog.query.get_or_404(log_id)
 
-        work_log = WorkLog.query.get(log_id)
-        if not work_log:
-            logger.error(f"❌ Ошибка: Work log с log_id={log_id} не найден!")
-            return jsonify({"success": False, "message": "❌ Work log not found"}), 404
+    # обновляем статус дня
+    if holiday_status:
+        work_log.holidays = holiday_status
 
-        # ✅ Обновляем статус дня
-        if holiday_status:
-            work_log.holidays = holiday_status
-            logger.info(f"✅ Статус изменён на: {holiday_status}")
+    if reset_worklog:
+        # сбрасываем время и часы
+        work_log.check_in_time  = None
+        work_log.check_out_time = None
+        work_log.worked_hours   = 0
+    else:
+        # если пришло новое время — конвертим в datetime с датой log_date
+        if check_in_time:
+            t_in = datetime.strptime(check_in_time, "%H:%M").time()
+            work_log.check_in_time = datetime.combine(work_log.log_date, t_in)
+        if check_out_time:
+            t_out = datetime.strptime(check_out_time, "%H:%M").time()
+            work_log.check_out_time = datetime.combine(work_log.log_date, t_out)
 
-        # ✅ Если "Pagado" или "No Pagado", сбрасываем день
-        if reset_worklog:
-            work_log.check_in_time = None
-            work_log.check_out_time = None
-            work_log.worked_hours = 0
-            logger.info(f"✅ Вход, выход и часы работы сброшены для log {log_id}")
-        else:
-            # 🕒 Обновляем случайные check-in/check-out
-            if check_in_time:
-                work_log.check_in_time = datetime.strptime(check_in_time, "%H:%M").time()
-            if check_out_time:
-                work_log.check_out_time = datetime.strptime(check_out_time, "%H:%M").time()
+        # пересчёт worked_hours
+        if work_log.check_in_time and work_log.check_out_time:
+            delta = work_log.check_out_time - work_log.check_in_time
+            work_log.worked_hours = round(delta.total_seconds() / 3600, 2)
 
-            # ⏳ Пересчитываем часы
-            if work_log.check_in_time and work_log.check_out_time:
-                start_dt = datetime.combine(datetime.today(), work_log.check_in_time)
-                end_dt = datetime.combine(datetime.today(), work_log.check_out_time)
-                work_log.worked_hours = round((end_dt - start_dt).total_seconds() / 3600, 2)
-                logger.info(f"✅ Пересчитаны часы: {work_log.worked_hours}h")
+    db.session.commit()
 
-        db.session.commit()
-        logger.info(f"✅ Данные обновлены для log {log_id}")
-
-        # 🔄 Возвращаем обновленные данные без перезагрузки
-        return jsonify({
-            "success": True,
-            "log_id": log_id,
-            "updated_check_in": work_log.check_in_time.strftime('%H:%M') if work_log.check_in_time else "--:--",
-            "updated_check_out": work_log.check_out_time.strftime('%H:%M') if work_log.check_out_time else "--:--",
-            "updated_worked_hours": f"{work_log.worked_hours:.2f}" if work_log.worked_hours else "0h 0min"
-        })
-
-    except Exception as e:
-        logger.error(f"❌ Ошибка: {e}")
-        db.session.rollback()
-        return jsonify({"success": False, "message": str(e)}), 500
+    return jsonify({
+        "success": True,
+        "log_id": log_id,
+        "updated_check_in": work_log.check_in_time.strftime('%H:%M') if work_log.check_in_time else "--:--",
+        "updated_check_out": work_log.check_out_time.strftime('%H:%M') if work_log.check_out_time else "--:--",
+        "updated_worked_hours": f"{work_log.worked_hours:.2f}"
+    })
 
 # Функция для определения диапазона дат по фильтру
 def get_date_range(filter_type: str) -> Tuple[date, date]:
