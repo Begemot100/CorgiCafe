@@ -832,172 +832,149 @@ from openpyxl.styles import Font, Alignment
 from openpyxl.utils import get_column_letter
 from datetime import datetime, timedelta, date
 
+from datetime import datetime, date, timedelta
+import os
+from flask import request, jsonify, send_file
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment
+from openpyxl.utils import get_column_letter
+
 @app.route('/export_excel', methods=['POST'])
 def export_excel():
     """
-    Экспорт ворклогов сотрудников в Excel с учетом фильтров.
+    Экспорт ворклогов сотрудников в Excel с учётом фильтров.
     """
-    data = request.json
+    data = request.get_json()
     selected_employees = data.get('selectedEmployees', [])
-    group = data.get('group')
-    filter_type = data.get('filterType')
-    start_date_str = data.get('startDate')
-    end_date_str = data.get('endDate')
-    status_filter = data.get('statusFilter')
+    group              = data.get('group')
+    filter_type        = data.get('filterType')
+    start_date_str     = data.get('startDate')
+    end_date_str       = data.get('endDate')
+    status_filter      = data.get('statusFilter')
 
     if not selected_employees:
         return jsonify({'message': 'No employees selected for export'}), 400
 
+    # собираем сотрудников
     employees_query = Employee.query.filter(Employee.id.in_(selected_employees))
     if group:
         employees_query = employees_query.filter(Employee.section == group)
-
     employees = employees_query.all()
+
     today = date.today()
 
-    # Определяем диапазон дат
+    # 1) Определяем диапазон дат по filter_type
     if filter_type == 'today':
         start_date = end_date = today
     elif filter_type == 'yesterday':
         start_date = end_date = today - timedelta(days=1)
     elif filter_type == 'last7days':
         start_date = today - timedelta(days=6)
-        end_date = today
+        end_date   = today
     elif filter_type == 'last30days':
-        start_date = today - timedelta(days=30)
-        end_date = today
+        start_date = today - timedelta(days=29)
+        end_date   = today
     elif filter_type == 'thismonth':
         start_date = today.replace(day=1)
-        end_date = (start_date + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+        end_date   = (start_date + timedelta(days=32)).replace(day=1) - timedelta(days=1)
     elif filter_type == 'lastmonth':
-        first_day_this_month = today.replace(day=1)
-        end_date = first_day_this_month - timedelta(days=1)
-        start_date = end_date.replace(day=1)
-    elif filter_type == 'custom' and start_date_str and end_date_str:
-        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-        end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        first_day_this = today.replace(day=1)
+        end_date       = first_day_this - timedelta(days=1)
+        start_date     = end_date.replace(day=1)
+    # ловим оба ключа кастомного диапазона
+    elif filter_type in ('custom', 'personalizado') and start_date_str and end_date_str:
+        try:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date   = datetime.strptime(end_date_str,   '%Y-%m-%d').date()
+            if start_date > end_date:
+                raise ValueError("startDate > endDate")
+        except ValueError:
+            return jsonify({'message': 'Invalid custom date range'}), 400
     else:
+        # fallback на today, но можно кинуть ошибку или взять предыдущий фильтр
         start_date = end_date = today
 
-    # Фильтрация ворклогов
+    # 2) Собираем логи за этот диапазон
     employees_data = []
     for emp in employees:
-        logs_query = WorkLog.query.filter(
+        q = WorkLog.query.filter(
             WorkLog.employee_id == emp.id,
             WorkLog.log_date >= start_date,
             WorkLog.log_date <= end_date
         )
-
         if status_filter:
-            logs_query = logs_query.filter(WorkLog.holidays == status_filter)
+            q = q.filter(WorkLog.holidays == status_filter)
+        logs = q.order_by(WorkLog.log_date).all()
+        employees_data.append({'employee': emp, 'logs': logs})
 
-        logs = logs_query.order_by(WorkLog.log_date.asc()).all()
-        employees_data.append({"employee": emp, "logs": logs})
-
-    # Создаем Excel-файл
+    # 3) Формируем Excel
     wb = Workbook()
     ws = wb.active
     ws.title = "Work Logs"
 
-    bold_font = Font(bold=True)
-    center_alignment = Alignment(horizontal="center")
+    bold = Font(bold=True)
+    center = Alignment(horizontal="center")
 
     row = 1
-    for item in employees_data:
-        employee = item["employee"]
-        logs = item["logs"]
+    for block in employees_data:
+        emp = block['employee']
+        logs = block['logs']
 
-        # Заголовок с именем сотрудника и должностью
         ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=7)
-        ws.cell(row=row, column=1, value=f"{employee.full_name} - {employee.position} ({employee.nie})").font = bold_font
+        ws.cell(row=row, column=1, value=f"{emp.full_name} - {emp.position} ({emp.nie})").font = bold
         row += 1
 
-        # Заголовки колонок
-        headers = ["Data", "Entrada", "Salida", "Total", "Extra hora", "Tipo de dia", "Días totales"]
-        for col, header in enumerate(headers, start=1):
-            cell = ws.cell(row=row, column=col, value=header)
-            cell.font = bold_font
-            cell.alignment = center_alignment
+        headers = ["Fecha", "Entrada", "Salida", "Total", "Extra", "Tipo Día", "Días trabajados"]
+        for col, h in enumerate(headers, start=1):
+            c = ws.cell(row=row, column=col, value=h)
+            c.font = bold
+            c.alignment = center
         row += 1
 
-        total_hours = 0.0
-        total_overtime = 0.0
-        total_days = 0
-        total_paid_days = 0
-        total_unpaid_days = 0
-        total_vacation_days = 0
-
+        total_days = total_hours = total_overtime = 0
         for log in logs:
             ws.cell(row=row, column=1, value=log.log_date.strftime('%Y-%m-%d'))
             ws.cell(row=row, column=2, value=log.check_in_time.strftime('%H:%M') if log.check_in_time else '--:--')
             ws.cell(row=row, column=3, value=log.check_out_time.strftime('%H:%M') if log.check_out_time else '--:--')
-
-            worked_hours = round(log.worked_hours or 0.0, 2)  # ✅ Округление часов
-            overtime = round(max(0, worked_hours - 8), 2)  # ✅ Округление сверхурочных
-
-            total_hours += worked_hours
-            total_overtime += overtime
-            ws.cell(row=row, column=4, value=worked_hours)
+            hours = round(log.worked_hours or 0, 2)
+            overtime = max(0, round(hours - 8, 2))
+            ws.cell(row=row, column=4, value=hours)
             ws.cell(row=row, column=5, value=overtime)
+            ws.cell(row=row, column=6, value=(log.holidays or 'workingday').capitalize())
+            is_work = bool(log.check_in_time and log.check_out_time)
+            ws.cell(row=row, column=7, value=1 if is_work else 0)
 
-            status = log.holidays.capitalize() if log.holidays else "Día laboral"
-            ws.cell(row=row, column=6, value=status)
-
-            is_working_day = (log.check_in_time and log.check_out_time) or (worked_hours > 0)
-            ws.cell(row=row, column=7, value=1 if is_working_day else 0)
-            if is_working_day:
+            if is_work:
                 total_days += 1
-
-            if status.lower() == "paid":
-                total_paid_days += 1
-            elif status.lower() == "unpaid":
-                total_unpaid_days += 1
-            elif status.lower() == "vacation":
-                total_vacation_days += 1
+                total_hours  += hours
+                total_overtime += overtime
 
             row += 1
 
-        # Итоги по сотруднику
-        ws.cell(row=row, column=5, value="Días totales").font = bold_font
-        ws.cell(row=row, column=6, value=total_days)
-        row += 1
+        # Итоги
+        for label, val in [
+            ("Días totales", total_days),
+            ("Horas totales", total_hours),
+            ("Horas extra", total_overtime)
+        ]:
+            ws.cell(row=row, column=5, value=label).font = bold
+            ws.cell(row=row, column=6, value=val)
+            row += 1
 
-        ws.cell(row=row, column=5, value="Horas totales").font = bold_font
-        ws.cell(row=row, column=6, value=total_hours)
-        row += 1
+        row += 1  # пустая строка
 
-        ws.cell(row=row, column=5, value="Horas extras").font = bold_font
-        ws.cell(row=row, column=6, value=total_overtime)
-        row += 1
-
-        ws.cell(row=row, column=5, value="Vacaciones pagadas").font = bold_font
-        ws.cell(row=row, column=6, value=total_paid_days)
-        row += 1
-
-        ws.cell(row=row, column=5, value="Vacaciones no pagadas").font = bold_font
-        ws.cell(row=row, column=6, value=total_unpaid_days)
-        row += 1
-
-        ws.cell(row=row, column=5, value="Vacaciones").font = bold_font
-        ws.cell(row=row, column=6, value=total_vacation_days)
-        row += 3  # Две пустые строки
-
-    # Автоширина колонок
+    # авто‑ширина
     for col in ws.columns:
-        max_length = 0
-        col_letter = get_column_letter(col[0].column)
-        for cell in col:
-            if cell.value:
-                max_length = max(max_length, len(str(cell.value)))
-        ws.column_dimensions[col_letter].width = max_length + 2
+        length = max((len(str(cell.value)) for cell in col if cell.value), default=0)
+        ws.column_dimensions[get_column_letter(col[0].column)].width = length + 2
 
-    # Сохранение файла
-    output_path = os.path.join("instance", "filtered_employee_logs.xlsx")
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    wb.save(output_path)
+    # сохраняем и отдаём
+    out_path = os.path.join('instance', 'filtered_employee_logs.xlsx')
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    wb.save(out_path)
 
     return send_file(
-        output_path,
+        out_path,
         as_attachment=True,
         download_name="filtered_employee_logs.xlsx"
     )
