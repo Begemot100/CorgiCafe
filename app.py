@@ -649,7 +649,7 @@ def work():
 
     except Exception as e:
         return jsonify({"error": f"❌ Ошибка в /work: {str(e)}"}), 500
-
+# iuggigi
 def calculate_employee_summary(employee_id):
     """
     Пересчитывает суммарные часы работы, дни, отпуска для сотрудника.
