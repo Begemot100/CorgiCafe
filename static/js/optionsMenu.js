@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(error => {
 //            console.error("Ошибка:", error);
-            alert("Произошла ошибка. Попробуйте снова.");
+//            alert("Произошла ошибка. Попробуйте снова.");
 
         });
     });
@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(error => {
             console.error("Ошибка:", error);
-            alert("Произошла ошибка. Попробуйте снова.");
+//            alert("Произошла ошибка. Попробуйте снова.");
         });
     });
 });
