@@ -701,7 +701,7 @@ def get_work_logs():
     return jsonify({"success": True, "logs": work_logs_list})
 # в начале файла добавить
 from datetime import datetime
-
+# fgfg
 @app.route('/update_work_log/<int:log_id>', methods=['POST'])
 def update_work_log(log_id):
     data = request.get_json()
