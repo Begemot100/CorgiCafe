@@ -495,7 +495,7 @@ import calendar
 @app.route('/work', methods=['GET'])
 def work():
     try:
-        # 🛠 Обработка filter с учётом personalizado
+        # 🛠 Обработка filter с учётом personalizado и сброса сессии
         requested = request.args.get('filter')
         allowed = {'today', 'yesterday', 'last7days', 'last30days', 'thismonth', 'lastmonth'}
 
@@ -504,9 +504,15 @@ def work():
             session['filter_type'] = filter_type
         elif requested == 'personalizado':
             filter_type = 'personalizado'
-            # не сохраняем в session, чтобы при следующем заходе без параметра сбрасывать дефолт
+            # очищаем предыдущий обычный фильтр, чтобы он не применялся по умолчанию
+            session.pop('filter_type', None)
         else:
-            filter_type = session.get('filter_type', 'thismonth')
+            prev = session.get('filter_type')
+            if prev in allowed:
+                filter_type = prev
+            else:
+                filter_type = 'thismonth'
+                session['filter_type'] = filter_type
 
         today = date.today()
         start_date = end_date = None
@@ -531,26 +537,24 @@ def work():
             last_day_prev = first_day_this - timedelta(days=1)
             start_date = last_day_prev.replace(day=1)
             end_date = last_day_prev
-
-        # Персонализованный диапазон при нажатии "Давай"
         elif filter_type == 'personalizado':
+            # кастомный диапазон при нажатии "Давай"
             start_str = request.args.get('start_date')
-            end_str = request.args.get('end_date')
+            end_str   = request.args.get('end_date')
 
             if not start_str or not end_str:
                 return jsonify({"error": "El filtro 'personalizado' requiere 'start_date' y 'end_date'"}), 400
 
             try:
                 start_date = datetime.strptime(start_str, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_str, '%Y-%m-%d').date()
+                end_date   = datetime.strptime(end_str, '%Y-%m-%d').date()
             except ValueError:
                 return jsonify({"error": "Formato de fecha no válido"}), 400
 
             if start_date > end_date:
                 return jsonify({"error": "La fecha de inicio no puede ser después de la fecha de finalización"}), 400
-
-        # На случай некорректного filter_type
         else:
+            # fallback — сбрасываем на thismonth
             filter_type = 'thismonth'
             start_date = today.replace(day=1)
             last_day = calendar.monthrange(today.year, today.month)[1]
@@ -645,7 +649,6 @@ def work():
 
     except Exception as e:
         return jsonify({"error": f"❌ Ошибка в /work: {str(e)}"}), 500
-
 
 def calculate_employee_summary(employee_id):
     """
