@@ -148,7 +148,7 @@ window.updateHolidayStatus = function(selectElement, employeeId) {
         data: JSON.stringify({
             holiday_status: newHolidayStatus,
             employee_id: employeeId,
-            reset_worklog: newHolidayStatus === "paid" || newHolidayStatus === "unpaid"
+            reset_worklog: newHolidayStatus === "paid" || newHolidayStatus === "unpaid" || newHolidayStatus === "weekend"
         }),
         success: function(response) {
             if (response.success) {
