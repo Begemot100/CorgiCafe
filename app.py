@@ -738,13 +738,22 @@ def update_work_log(log_id):
             work_log.worked_hours = round(delta.total_seconds() / 3600, 2)
 
     db.session.commit()
+    summary = calculate_employee_summary(work_log.employee_id)
 
     return jsonify({
         "success": True,
         "log_id": log_id,
-        "updated_check_in":  work_log.check_in_time.strftime('%H:%M') if work_log.check_in_time else "--:--",
+        "updated_check_in": work_log.check_in_time.strftime('%H:%M') if work_log.check_in_time else "--:--",
         "updated_check_out": work_log.check_out_time.strftime('%H:%M') if work_log.check_out_time else "--:--",
-        "updated_worked_hours": f"{work_log.worked_hours:.2f}"
+        "updated_worked_hours": f"{work_log.worked_hours:.2f}",
+        # новый блок summary
+        "summary": {
+            "total_hours": summary["total_hours"],
+            "working_days": summary["working_days"],
+            "overtime_hours": summary["overtime_hours"],
+            "paid_holidays": summary["paid_holidays"],
+            "unpaid_holidays": summary["unpaid_holidays"]
+        }
     })
 
 
