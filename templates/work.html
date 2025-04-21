@@ -256,7 +256,6 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ url_for('static', filename='js/work.js') }}"></script>
     <script src="{{ url_for('static', filename='js/group_modal.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/filter_modal.js') }}"></script>
     <script src="{{ url_for('static', filename='js/export_to_excel.js') }}"></script>
     <script src="{{ url_for('static', filename='js/workboard.js') }}"></script>
 <!--    <script src="{{ url_for('static', filename='js/person.js') }}"></script>-->
@@ -332,5 +331,7 @@
     <div id="groupModal" class="modal hidden">
         {% include 'group_modal.html' %}
     </div>
+    <script src="{{ url_for('static', filename='js/filter_modal.js') }}"></script>
+
 </body>
 </html>
