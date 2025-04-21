@@ -702,6 +702,8 @@ def get_work_logs():
 # в начале файла добавить
 from datetime import datetime
 # hjji
+from datetime import datetime
+
 @app.route('/update_work_log/<int:log_id>', methods=['POST'])
 def update_work_log(log_id):
     data = request.get_json()
@@ -712,17 +714,18 @@ def update_work_log(log_id):
 
     work_log = WorkLog.query.get_or_404(log_id)
 
-    # обновляем статус дня
+    # 1) Обновляем статус дня (paid, unpaid, fin_de_semana, etc.)
     if holiday_status:
         work_log.holidays = holiday_status
 
-    if reset_worklog:
-        # сбрасываем время и часы
+    # 2) Решаем, нужно ли сбрасывать времена и часы:
+    #    сбрасываем, если пришёл reset_worklog или статус в этом списке
+    if reset_worklog or holiday_status in ('paid', 'unpaid', 'weekend'):
         work_log.check_in_time  = None
         work_log.check_out_time = None
         work_log.worked_hours   = 0
     else:
-        # если пришло новое время — конвертим в datetime с датой log_date
+        # 3) Иначе применяем новые времена и пересчитываем worked_hours
         if check_in_time:
             t_in = datetime.strptime(check_in_time, "%H:%M").time()
             work_log.check_in_time = datetime.combine(work_log.log_date, t_in)
@@ -730,7 +733,6 @@ def update_work_log(log_id):
             t_out = datetime.strptime(check_out_time, "%H:%M").time()
             work_log.check_out_time = datetime.combine(work_log.log_date, t_out)
 
-        # пересчёт worked_hours
         if work_log.check_in_time and work_log.check_out_time:
             delta = work_log.check_out_time - work_log.check_in_time
             work_log.worked_hours = round(delta.total_seconds() / 3600, 2)
@@ -740,33 +742,11 @@ def update_work_log(log_id):
     return jsonify({
         "success": True,
         "log_id": log_id,
-        "updated_check_in": work_log.check_in_time.strftime('%H:%M') if work_log.check_in_time else "--:--",
+        "updated_check_in":  work_log.check_in_time.strftime('%H:%M') if work_log.check_in_time else "--:--",
         "updated_check_out": work_log.check_out_time.strftime('%H:%M') if work_log.check_out_time else "--:--",
         "updated_worked_hours": f"{work_log.worked_hours:.2f}"
     })
 
-# Функция для определения диапазона дат по фильтру
-def get_date_range(filter_type: str) -> Tuple[date, date]:
-    today = date.today()
-
-    if filter_type == 'today':
-        return today, today
-    elif filter_type == 'yesterday':
-        return today - timedelta(days=1), today - timedelta(days=1)
-    elif filter_type == 'last7days':
-        return today - timedelta(days=6), today
-    elif filter_type == 'last30days':
-        return today - timedelta(days=29), today
-    elif filter_type == 'thismonth':
-        start_date = today.replace(day=1)
-        end_date = (today.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
-        return start_date, end_date
-    elif filter_type == 'lastmonth':
-        first_day = today.replace(day=1)
-        end_date = first_day - timedelta(days=1)
-        start_date = end_date.replace(day=1)
-        return start_date, end_date
-    return today, today  # Если фильтр не распознан, возвращаем сегодня
 
 # Фильтр для форматирования часов
 @app.template_filter('format_hours')
