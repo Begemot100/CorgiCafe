@@ -268,3 +268,34 @@ function refreshWorkLogs() {
         .catch(error => console.error("❌ Ошибка загрузки ворклогов:", error));
 }
 
+document.querySelectorAll('.holiday-select').forEach(select => {
+  select.addEventListener('change', async function() {
+    const row = this.closest('tr');
+    const logId = row.getAttribute('data-log-id');
+    const holidayStatus = this.value;
+    // если нужно сбросить — можно передавать true
+    const reset = ['paid','unpaid','fin_de_semana'].includes(holidayStatus);
+
+    try {
+      const res = await fetch(`/update_work_log/${logId}`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          holiday_status: holidayStatus,
+          reset_worklog: reset
+        })
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.message||'Ошибка на сервере');
+
+      // обновляем ячейки в строке
+      row.querySelector('.check-in').textContent  = json.updated_check_in;
+      row.querySelector('.check-out').textContent = json.updated_check_out;
+      row.querySelector('.worked-hours').textContent = json.updated_worked_hours;
+
+    } catch(err) {
+      console.error(err);
+      alert('Не удалось обновить запись: ' + err.message);
+    }
+  });
+});
