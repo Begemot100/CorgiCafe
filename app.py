@@ -490,17 +490,28 @@ def delete_employee(employee_id):
 from flask import request, jsonify, session, render_template
 from datetime import datetime, date, timedelta
 from sqlalchemy import and_
+import calendar
 
 @app.route('/work', methods=['GET'])
 def work():
     try:
+        # 🛠 Обработка filter с учётом personalizado
+        requested = request.args.get('filter')
+        allowed = {'today', 'yesterday', 'last7days', 'last30days', 'thismonth', 'lastmonth'}
+
+        if requested in allowed:
+            filter_type = requested
+            session['filter_type'] = filter_type
+        elif requested == 'personalizado':
+            filter_type = 'personalizado'
+            # не сохраняем в session, чтобы при следующем заходе без параметра сбрасывать дефолт
+        else:
+            filter_type = session.get('filter_type', 'thismonth')
+
         today = date.today()
-        filter_type = request.args.get('filter', session.get('filter_type', 'thismonth'))
-        start_date = None
-        end_date = None  # 🛠 Инициализируем переменные заранее
+        start_date = end_date = None
 
-        session['filter_type'] = filter_type
-
+        # Основные фильтры
         if filter_type == 'today':
             start_date = end_date = today
         elif filter_type == 'yesterday':
@@ -513,43 +524,51 @@ def work():
             end_date = today
         elif filter_type == 'thismonth':
             start_date = today.replace(day=1)
-            end_date = (today.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
+            last_day = calendar.monthrange(today.year, today.month)[1]
+            end_date = today.replace(day=last_day)
         elif filter_type == 'lastmonth':
-            first_day = today.replace(day=1)
-            end_date = first_day - timedelta(days=1)
-            start_date = end_date.replace(day=1)
-        elif filter_type == 'personalizado':  # Исправлено с "custom" на "personalizado"
-            start_date_str = request.args.get('start_date')
-            end_date_str = request.args.get('end_date')
+            first_day_this = today.replace(day=1)
+            last_day_prev = first_day_this - timedelta(days=1)
+            start_date = last_day_prev.replace(day=1)
+            end_date = last_day_prev
 
-            if not start_date_str or not end_date_str:
+        # Персонализованный диапазон при нажатии "Давай"
+        elif filter_type == 'personalizado':
+            start_str = request.args.get('start_date')
+            end_str = request.args.get('end_date')
+
+            if not start_str or not end_str:
                 return jsonify({"error": "El filtro 'personalizado' requiere 'start_date' y 'end_date'"}), 400
 
             try:
-                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-                if start_date > end_date:
-                    return jsonify({"error": "La fecha de inicio no puede ser después de la fecha de finalización"}), 400
+                start_date = datetime.strptime(start_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_str, '%Y-%m-%d').date()
             except ValueError:
                 return jsonify({"error": "Formato de fecha no válido"}), 400
+
+            if start_date > end_date:
+                return jsonify({"error": "La fecha de inicio no puede ser después de la fecha de finalización"}), 400
+
+        # На случай некорректного filter_type
         else:
             filter_type = 'thismonth'
             start_date = today.replace(day=1)
-            end_date = (today.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
+            last_day = calendar.monthrange(today.year, today.month)[1]
+            end_date = today.replace(day=last_day)
+            session['filter_type'] = filter_type
 
-        # 🛠 Проверка на None перед возвратом JSON
-        if not start_date or not end_date:
+        # Проверка наличия дат
+        if start_date is None or end_date is None:
             return jsonify({"error": "Faltan las fechas de filtro"}), 400
 
-        # Загружаем сотрудников
+        # Загрузка сотрудников и логов
         employees = Employee.query.all()
         employee_logs = []
 
-        for employee in employees:
+        for emp in employees:
             logs = WorkLog.query.filter(
                 and_(
-                    WorkLog.employee_id == employee.id,
+                    WorkLog.employee_id == emp.id,
                     WorkLog.log_date >= start_date,
                     WorkLog.log_date <= end_date
                 )
@@ -558,26 +577,22 @@ def work():
             if not logs:
                 continue
 
+            total_hours = working_days = paid_holidays = unpaid_holidays = overtime_hours = 0
             work_logs_data = []
-            total_hours = 0
-            working_days = 0
-            paid_holidays = 0
-            unpaid_holidays = 0
-            overtime_hours = 0
 
             for log in logs:
                 log.calculate_worked_hours()
+                wd = log.log_date
+                if isinstance(wd, str):
+                    wd = datetime.strptime(wd, '%Y-%m-%d').date()
 
-                log_date = log.log_date
-                if isinstance(log_date, str):
-                    log_date = datetime.strptime(log_date, '%Y-%m-%d').date()
+                hours = float(log.worked_hours or 0)
+                total_hours += hours
 
-                worked_hours = float(log.worked_hours or 0)
-                total_hours += worked_hours
-                if log.holidays == 'workingday' and worked_hours > 0:
+                if log.holidays == 'workingday' and hours > 0:
                     working_days += 1
-                    if worked_hours > 8:
-                        overtime_hours += (worked_hours - 8)
+                    if hours > 8:
+                        overtime_hours += (hours - 8)
                 elif log.holidays == 'paid':
                     paid_holidays += 1
                 elif log.holidays == 'unpaid':
@@ -585,19 +600,19 @@ def work():
 
                 work_logs_data.append({
                     'id': log.id,
-                    'log_date': log_date.strftime('%Y-%m-%d'),
+                    'log_date': wd.strftime('%Y-%m-%d'),
                     'check_in_time': log.check_in_time.strftime('%H:%M') if log.check_in_time else '--:--',
                     'check_out_time': log.check_out_time.strftime('%H:%M') if log.check_out_time else '--:--',
-                    'worked_hours': round(worked_hours, 2),
+                    'worked_hours': round(hours, 2),
                     'holidays': log.holidays or 'workingday'
                 })
 
-            employee_data = {
+            employee_logs.append({
                 'employee': {
-                    'id': employee.id,
-                    'full_name': employee.full_name,
-                    'position': employee.position,
-                    'section': employee.section
+                    'id': emp.id,
+                    'full_name': emp.full_name,
+                    'position': emp.position,
+                    'section': emp.section
                 },
                 'work_logs': work_logs_data,
                 'summary': {
@@ -607,16 +622,16 @@ def work():
                     'paid_holidays': paid_holidays,
                     'unpaid_holidays': unpaid_holidays
                 }
-            }
-            employee_logs.append(employee_data)
+            })
 
-        # AJAX-запрос
+        # Ответ для AJAX или рендер страницы
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             return jsonify({
                 'success': True,
                 'employees': employee_logs,
-                'start_date': start_date.strftime('%Y-%m-%d'),
-                'end_date': end_date.strftime('%Y-%m-%d')
+                'start_date': start_date.isoformat(),
+                'end_date': end_date.isoformat(),
+                'filter_type': filter_type
             })
 
         return render_template(
@@ -624,12 +639,13 @@ def work():
             employees=employee_logs,
             today=today,
             filter_type=filter_type,
-            start_date=start_date.strftime('%Y-%m-%d'),
-            end_date=end_date.strftime('%Y-%m-%d')
+            start_date=start_date.isoformat(),
+            end_date=end_date.isoformat()
         )
 
     except Exception as e:
         return jsonify({"error": f"❌ Ошибка в /work: {str(e)}"}), 500
+
 
 def calculate_employee_summary(employee_id):
     """
