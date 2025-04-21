@@ -366,7 +366,6 @@ def add_employee():
             "work_end_time": new_employee.work_end_time.strftime("%H:%M") if new_employee.work_end_time else ""
         }})
     except Exception as e:
-        logger.error(f"❌ Ошибка в add_employee: {e}")
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
