@@ -317,19 +317,29 @@
                 console.error('❌ Модальное окно или поле имени/ID не найдено!');
             }
         };
-
+        window.selectedLogEntries = [];
         // Функция для открытия модального окна для Random
-        window.openRandomModal = function(selectedLogIds) {
+          window.openRandomModal = function(selectedLogIds) {
             const modal = document.getElementById('randomModal');
             if (modal) {
                 modal.classList.remove('hidden');
                 modal.classList.add('modal-unique', 'active');
-                window.selectedLogIds = selectedLogIds; // Store selected log IDs globally
-                console.log(`📌 Открыт модальный окно Random для log IDs: ${selectedLogIds}`);
-            } else {
-                console.error('❌ Модальное окно Random не найдено!');
-            }
-        };
+
+                // Собираем employeeId вместе с logId
+                window.selectedLogEntries = selectedLogIds.map(logId => {
+                    const select = document.querySelector(`#holiday-select-${logId}`);
+                    return {
+                        logId,
+                        employeeId: select?.dataset.employeeId || null
+                    };
+                });
+
+        console.log(`📌 Открыт модал для ${window.selectedLogEntries.length} логов:`, window.selectedLogEntries);
+    } else {
+        console.error('❌ Модальное окно Random не найдено!');
+    }
+};
+
 
         // Функция для закрытия модального окна добавления дня
         window.closeAddDayModal = function() {
@@ -394,50 +404,54 @@
             const endRangeMin = document.getElementById('endRangeMin').value;
             const endRangeMax = document.getElementById('endRangeMax').value;
 
-            console.log(`📌 Рандомизация диапазонов:`);
-            console.log(`Entrada: ${startRangeMin} - ${startRangeMax}`);
-            console.log(`Salida: ${endRangeMin} - ${endRangeMax}`);
+            const entries = window.selectedLogEntries || [];
 
+            if (!entries.length) {
+                alert("❌ Нет выбранных логов");
+                return;
+            }
 
-            console.log(`📌 Рандомизация: Start Range: ${startRangeMin} - ${startRangeMax}, End Range: ${endRangeMin} - ${endRangeMax}`);
+            console.log(`📌 Обработка ${entries.length} логов через Random`);
 
-            const selectedLogIds = window.selectedLogIds || [];
-                console.log(`📌 Выбранные лог-ID: ${selectedLogIds}`);
+            let completed = 0;
 
-
-            selectedLogIds.forEach(logId => {
+            entries.forEach(({ logId, employeeId }) => {
                 const randomCheckIn = generateRandomTime(startRangeMin, startRangeMax);
                 const randomCheckOut = generateRandomTime(endRangeMin, endRangeMax);
-                const employeeId = document.querySelector(`#holiday-select-${logId}`).dataset.employeeId;
-
-                console.log(`📌 Обновление для log ${logId}, employee ${employeeId}: Check-in: ${randomCheckIn}, Check-out: ${randomCheckOut}`);
 
                 $.ajax({
-                    url: `/update_work_log/${logId}`, // Use update endpoint for existing logs
+                    url: `/update_work_log/${logId}`,
                     method: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({
-                        holiday_status: 'workingday', // Reset to working day
+                        holiday_status: 'workingday',
                         check_in_time: randomCheckIn,
                         check_out_time: randomCheckOut,
                         employee_id: employeeId,
-                        reset_worklog: false // Do not reset worked_hours manually
+                        reset_worklog: false
                     }),
                     success: function(response) {
                         if (response.success) {
-                            console.log(`✅ Рандомные времена обновлены для log ${logId}`);
+                            console.log(`✅ Установлено: log ${logId}, сотрудник ${employeeId}`);
                         } else {
                             console.error(`❌ Ошибка: ${response.message}`);
                         }
+                        completed++;
+                        if (completed === entries.length) {
+                            closeRandomModal();
+                            location.reload();
+                        }
                     },
                     error: function(xhr, status, error) {
-                        console.error(`❌ Ошибка AJAX для log ${logId}: ${error} (Status: ${xhr.status})`);
+                        console.error(`❌ Ошибка AJAX для log ${logId}: ${error}`);
+                        completed++;
+                        if (completed === entries.length) {
+                            closeRandomModal();
+                            location.reload();
+                        }
                     }
                 });
             });
-
-            closeRandomModal();
-            location.reload();
         });
 
         // Функция для генерации случайного времени в заданном диапазоне
