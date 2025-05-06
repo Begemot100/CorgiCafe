@@ -453,7 +453,7 @@
                 });
             });
         });
-
+//q
         // Функция для генерации случайного времени в заданном диапазоне
         function generateRandomTime(minTime, maxTime) {
             const min = new Date(`1970-01-01T${minTime}:00`);
