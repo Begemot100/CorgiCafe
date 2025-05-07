@@ -267,7 +267,7 @@
                     nextButton.id = `randomNextBtn-${employeeId}`;
                     nextButton.style.margin = '10px 0';
                     nextButton.style.padding = '5px 10px';
-                    nextButton.style.backgroundColor = '#4CAF50';
+                    nextButton.style.backgroundColor = '#fb8c86';
                     nextButton.style.color = 'white';
                     nextButton.style.border = 'none';
                     nextButton.style.borderRadius = '5px';
@@ -301,6 +301,11 @@
                         todoButton.textContent = 'Todo';
                         todoButton.id = `randomTodoBtn-${employeeId}`;
                         todoButton.className = 'btn-todo';
+                        todoButton.style.backgroundColor = '#fb8c86';
+                        todoButton.style.color = '#fff';
+                        todoButton.style.padding = '5px 10px';
+                        todoButton.style.borderRadius = '5px';
+                        todoButton.style.border = 'none';
                         todoButton.style.margin = '10px 0';
                         todoButton.onclick = function() {
                             const checkboxes = Array.from(worklogCheckboxes)
