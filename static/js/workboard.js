@@ -296,6 +296,27 @@
                             alert('Por favor, seleccione al menos un día para este empleado.');
                         }
                     };
+                    // Кнопка Todo
+                        const todoButton = document.createElement('button');
+                        todoButton.textContent = 'Todo';
+                        todoButton.id = `randomTodoBtn-${employeeId}`;
+                        todoButton.className = 'btn-todo';
+                        todoButton.style.margin = '10px 0';
+                        todoButton.onclick = function() {
+                            const checkboxes = Array.from(worklogCheckboxes)
+                                .filter(cb => cb.dataset.employeeId === employeeId);
+
+                            const allChecked = checkboxes.every(cb => cb.checked);
+
+                            checkboxes.forEach(cb => cb.checked = !allChecked);
+
+                            console.log(`📌 ${allChecked ? 'Сняты' : 'Установлены'} все чекбоксы для сотрудника ${employeeId}`);
+                        };
+
+
+                        summaryPanel.appendChild(nextButton);
+                        summaryPanel.appendChild(todoButton);
+
                     summaryPanel.appendChild(nextButton);
                     console.log(`✅ Кнопка "Siguiente" добавлена под summary-panel для сотрудника ${employeeId}`);
                 }
