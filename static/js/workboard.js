@@ -327,7 +327,7 @@
                 }
             });
         };
-
+//awqe
         // Функция для открытия модального окна добавления дня
         window.openAddDayModal = function(employeeId, employeeName) {
             const modal = document.getElementById('addDayModal');
