@@ -1,22 +1,44 @@
   // Глобальные функции, доступные для onchange
-        window.updateSelectBackground = function(selectElement) {
+       window.updateSelectBackground = function(selectElement) {
             console.log(`Обновление фона для select с value: ${selectElement.value}`);
             selectElement.style.backgroundColor = '';
             selectElement.style.color = '';
             switch (selectElement.value) {
+                case 'workingday':
+                    selectElement.style.backgroundColor = '#FFFFFF'; // White for working day
+                    selectElement.style.color = '#000';
+                    break;
                 case 'paid':
-                    selectElement.style.backgroundColor = '#FEDB5B';
+                    selectElement.style.backgroundColor = '#FEDB5B'; // Yellow for paid
                     selectElement.style.color = '#000';
                     break;
                 case 'unpaid':
-                    selectElement.style.backgroundColor = '#DD8137';
+                    selectElement.style.backgroundColor = '#DD8137'; // Orange for unpaid
                     selectElement.style.color = '#FFF';
                     break;
                 case 'weekend':
-                    selectElement.style.backgroundColor = '#A6A6A6';
+                    selectElement.style.backgroundColor = '#A6A6A6'; // Gray for weekend
+                    selectElement.style.color = '#FFF';
+                    break;
+                case 'baja por enfermedad':
+                    selectElement.style.backgroundColor = '#FF6B6B'; // Red for sick leave
+                    selectElement.style.color = '#FFF';
+                    break;
+                case 'maternidad/paternidad':
+                    selectElement.style.backgroundColor = '#6BCB77'; // Green for maternity/paternity
+                    selectElement.style.color = '#FFF';
+                    break;
+                case 'vacaciones':
+                    selectElement.style.backgroundColor = '#4D96FF'; // Blue for vacation
+                    selectElement.style.color = '#FFF';
+                    break;
+                case 'permiso no retribuido':
+                    selectElement.style.backgroundColor = '#FF9F1C'; // Bright orange for unpaid leave
                     selectElement.style.color = '#FFF';
                     break;
                 default:
+                    selectElement.style.backgroundColor = '#FFFFFF'; // Default to white
+                    selectElement.style.color = '#000';
                     break;
             }
         };
