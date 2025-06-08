@@ -392,17 +392,19 @@ body {
     position: absolute;
     background-color: white;
     border: 1px solid #ccc;
+    border-radius: 8px;
     padding: 10px;
     z-index: 10;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     max-height: 300px;
     overflow-y: auto;
-    width: 200px;
-    margin-top: 5px;
+    width: 250px;
+    margin-top: 45px;
 }
 
 .dropdown-checkbox {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 15px;
 }
 
 .hidden {
