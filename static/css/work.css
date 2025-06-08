@@ -388,3 +388,23 @@ body {
     display: block;
 }
 /* static/css/work.css or a new random.css */
+.employee-dropdown {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    z-index: 10;
+    max-height: 300px;
+    overflow-y: auto;
+    width: 200px;
+    margin-top: 5px;
+}
+
+.dropdown-checkbox {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.hidden {
+    display: none;
+}

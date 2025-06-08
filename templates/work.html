@@ -55,6 +55,19 @@
                         {% endif %}
                     </button>
                     <button class="filter-btn" onclick="openGroupModal(event)">Grupo</button>
+                    <button class="filter-btn" onclick="toggleEmployeeDropdown(event)">Empleados</button>
+                    <div class="employee-dropdown hidden" id="employeeDropdown">
+                        <form id="employeeFilterForm">
+                            {% for employee_data in employees %}
+                            <label class="dropdown-checkbox">
+                                <input type="checkbox" class="employee-filter-checkbox" value="{{ employee_data.employee.id }}">
+                                {{ employee_data.employee.full_name }}
+                            </label>
+                            {% endfor %}
+                            <button type="button" onclick="applyEmployeeFilter()">Aplicar</button>
+                        </form>
+                    </div>
+
                 </div>
 
                 <div id="customDateInputs" style="display: none; marfin-top: 10px;">

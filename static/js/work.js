@@ -191,3 +191,27 @@ document.addEventListener("change", async e => {
     sel.value = oldVal;  // откат при ошибке
   }
 });
+
+function toggleEmployeeDropdown(event) {
+    const dropdown = document.getElementById("employeeDropdown");
+    dropdown.classList.toggle("hidden");
+}
+
+function applyEmployeeFilter() {
+    const checkboxes = document.querySelectorAll(".employee-filter-checkbox");
+    const selectedIds = Array.from(checkboxes)
+        .filter(cb => cb.checked)
+        .map(cb => cb.value);
+
+    const allSections = document.querySelectorAll(".employee-section");
+    allSections.forEach(section => {
+        const employeeId = section.querySelector(".employee-checkbox").id.split("_")[1];
+        if (selectedIds.includes(employeeId)) {
+            section.style.display = "block";
+        } else {
+            section.style.display = "none";
+        }
+    });
+
+    document.getElementById("employeeDropdown").classList.add("hidden");
+}
