@@ -12,7 +12,7 @@ import time  # For timing measurements
 import sys
 from models import Employee, Admin, DashboardUser, WorkLog, db
 from config import Config
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 # start_time = time.time()
 print("🔄 Запуск приложения...")
 import logging
@@ -564,8 +564,16 @@ def work():
         if start_date is None or end_date is None:
             return jsonify({"error": "Faltan las fechas de filtro"}), 400
 
-        # Загрузка сотрудников и логов
-        employees = Employee.query.all()
+        employees = Employee.query.filter(
+            and_(
+                or_(
+                    Employee.end_date == None,
+                    Employee.end_date >= start_date
+                ),
+                Employee.start_date <= end_date
+            )
+        )
+
         employee_logs = []
 
         for emp in employees:
@@ -577,11 +585,12 @@ def work():
                 )
             ).all()
 
-            if not logs:
-                continue
+            # if not logs:
+            #     continue
 
-            total_hours = working_days = paid_holidays = unpaid_holidays = overtime_hours = 0
             work_logs_data = []
+            total_hours = working_days = paid_holidays = unpaid_holidays = overtime_hours = 0
+
 
             for log in logs:
                 log.calculate_worked_hours()
