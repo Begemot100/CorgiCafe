@@ -215,3 +215,34 @@ function applyEmployeeFilter() {
 
     document.getElementById("employeeDropdown").classList.add("hidden");
 }
+function filterEmployees() {
+    const checkboxes = document.querySelectorAll(".employee-filter-checkbox");
+    const selectedIds = Array.from(checkboxes)
+        .filter(cb => cb.checked)
+        .map(cb => cb.value);
+
+    const allSections = document.querySelectorAll(".employee-section");
+    allSections.forEach(section => {
+        const employeeId = section.querySelector(".employee-checkbox").id.split("_")[1];
+        if (selectedIds.length === 0 || selectedIds.includes(employeeId)) {
+            section.style.display = "block";
+        } else {
+            section.style.display = "none";
+        }
+    });
+}
+
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('employeeDropdown');
+    const button = document.querySelector('button[onclick="toggleEmployeeDropdown(event)"]');
+
+    if (!dropdown || !button) return;
+
+    const isClickInsideDropdown = dropdown.contains(event.target);
+    const isClickOnButton = button.contains(event.target);
+
+    if (!isClickInsideDropdown && !isClickOnButton) {
+        dropdown.classList.add('hidden');
+    }
+});
+

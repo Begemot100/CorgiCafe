@@ -60,7 +60,7 @@
                         <form id="employeeFilterForm">
                             {% for employee_data in employees %}
                             <label class="dropdown-checkbox">
-                                <input type="checkbox" class="employee-filter-checkbox" value="{{ employee_data.employee.id }}">
+                                <input type="checkbox" class="employee-filter-checkbox" value="{{ employee_data.employee.id }}" onchange="filterEmployees()">
                                 {{ employee_data.employee.full_name }}
                             </label>
                             {% endfor %}
