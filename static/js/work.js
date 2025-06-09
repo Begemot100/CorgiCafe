@@ -1,20 +1,18 @@
-// static/js/app.js
-
 // ------------------------------
-// Вспомогательная функция: показать/спрятать модалку
+// Helper: Show/Hide Filter Modal
 // ------------------------------
 function toggleFilterModal() {
   const btn   = document.getElementById("filterButton");
   const modal = document.getElementById("filterModal");
   if (!btn || !modal) return;
 
-  // позиционируем под кнопкой
+  // Position the modal just below the button
   const rect = btn.getBoundingClientRect();
   modal.style.position = "absolute";
   modal.style.top  = `${rect.bottom + window.scrollY + 5}px`;
   modal.style.left = `${rect.left   + window.scrollX}px`;
 
-  // переключаем видимость
+  // Toggle visibility
   const hidden = modal.classList.contains("hidden");
   modal.classList.toggle("hidden", !hidden);
   modal.style.display = hidden ? "block" : "none";
@@ -22,19 +20,19 @@ function toggleFilterModal() {
 }
 
 // ------------------------------
-// Делегируем клики по документу
+// Global click delegation
 // ------------------------------
 document.addEventListener("click", e => {
   const target = e.target;
 
-  // 1) Клик по кнопке "Фильтр"
+  // 1) Clicking the filter button
   if (target.matches("#filterButton")) {
     e.stopPropagation();
     toggleFilterModal();
     return;
   }
 
-  // 2) Клик по пункту модалки
+  // 2) Clicking a filter option inside the modal
   if (target.matches("#filterModal li")) {
     e.stopPropagation();
     const key = target.dataset.filter;
@@ -50,29 +48,26 @@ document.addEventListener("click", e => {
       personalizado: "Personalizado"
     };
 
-    // Обновляем текст кнопки
     const btn = document.getElementById("filterButton");
     btn.textContent = names[key] || names.thismonth;
     btn.dataset.currentFilter = key;
 
-    // Показываем или прячем кастомные даты
     const custom = document.getElementById("customDateInputs");
     custom.style.display = key === "personalizado" ? "block" : "none";
 
-    // Переключаем URL
     const url = new URL(window.location);
     url.searchParams.set("filter", key);
     if (key !== "personalizado") {
       url.searchParams.delete("start_date");
       url.searchParams.delete("end_date");
     }
+
     toggleFilterModal();
-    // если персонализado — ждем нажатия на кнопку «Aplicar»
     if (key !== "personalizado") window.location = url;
     return;
   }
 
-  // 3) Клик вне модалки прячет её
+  // 3) Click outside the filter modal = close it
   const modal = document.getElementById("filterModal");
   const btn   = document.getElementById("filterButton");
   if (modal && !modal.contains(target) && target !== btn) {
@@ -82,16 +77,19 @@ document.addEventListener("click", e => {
 });
 
 // ------------------------------
-// Обработчик кнопки "Aplicar" для custom дат
+// Custom Date Range "Aplicar" button logic
 // ------------------------------
 document.addEventListener("click", e => {
   if (!e.target.matches("#customDateInputs button")) return;
+
   const start = document.getElementById("startDate").value;
   const end   = document.getElementById("endDate").value;
+
   if (!start || !end) {
     alert("Por favor, selecciona ambas fechas");
     return;
   }
+
   const url = new URL(window.location);
   url.searchParams.set("filter", "personalizado");
   url.searchParams.set("start_date", start);
@@ -100,7 +98,7 @@ document.addEventListener("click", e => {
 });
 
 // ------------------------------
-// Рендер и обновление таблицы сотрудников
+// Render employee work logs to the DOM
 // ------------------------------
 function updateWorkTable(employees) {
   const container = document.querySelector(".main-container");
@@ -138,7 +136,6 @@ function updateWorkTable(employees) {
               <option value="unpaid"       ${log.holidays==="unpaid"?"selected":""}>No pagado</option>
               <option value="weekend"      ${log.holidays==="weekend"?"selected":""}>Fin de semana</option>
               <option value="vacaciones"   ${log.holidays==="vacaciones"?"selected":""}>Vacaciones</option>
-              <!-- остальное -->
             </select>
           </td>
         </tr>`;
@@ -159,7 +156,7 @@ function updateWorkTable(employees) {
 window.updateWorkTable = updateWorkTable;
 
 // ------------------------------
-// Делегируем изменение статуса без перезагрузки
+// Handle status change on holiday type (select)
 // ------------------------------
 document.addEventListener("change", async e => {
   const sel = e.target;
@@ -176,73 +173,81 @@ document.addEventListener("change", async e => {
       headers: {"Content-Type":"application/json"},
       body:    JSON.stringify({holiday_status:newVal, reset_worklog:reset})
     });
-    const json = await res.json();
-    if (!json.success) throw new Error(json.message||"Ошибка");
 
-    // Проставляем новые времена в ячейках
+    const json = await res.json();
+    if (!json.success) throw new Error(json.message||"Update failed");
+
     const row = document.querySelector(`tr[data-log-id="${logId}"]`);
     row.querySelector(".check-in-time").textContent  = json.updated_check_in;
     row.querySelector(".check-out-time").textContent = json.updated_check_out;
-    row.querySelector(".worked-hours").textContent  = json.updated_worked_hours;
+    row.querySelector(".worked-hours").textContent   = json.updated_worked_hours;
 
     sel.dataset.previous = newVal;
   } catch(err) {
     console.error(err);
-    sel.value = oldVal;  // откат при ошибке
+    sel.value = oldVal; // rollback if error
   }
 });
 
+// ------------------------------
+// Show/Hide employee filter dropdown
+// ------------------------------
 function toggleEmployeeDropdown(event) {
-    const dropdown = document.getElementById("employeeDropdown");
-    dropdown.classList.toggle("hidden");
+  const dropdown = document.getElementById("employeeDropdown");
+  dropdown.classList.toggle("hidden");
 }
 
+// ------------------------------
+// Apply employee filter (manual mode — no longer used)
+// ------------------------------
 function applyEmployeeFilter() {
-    const checkboxes = document.querySelectorAll(".employee-filter-checkbox");
-    const selectedIds = Array.from(checkboxes)
-        .filter(cb => cb.checked)
-        .map(cb => cb.value);
+  const checkboxes = document.querySelectorAll(".employee-filter-checkbox");
+  const selectedIds = Array.from(checkboxes)
+    .filter(cb => cb.checked)
+    .map(cb => cb.value);
 
-    const allSections = document.querySelectorAll(".employee-section");
-    allSections.forEach(section => {
-        const employeeId = section.querySelector(".employee-checkbox").id.split("_")[1];
-        if (selectedIds.includes(employeeId)) {
-            section.style.display = "block";
-        } else {
-            section.style.display = "none";
-        }
-    });
+  const allSections = document.querySelectorAll(".employee-section");
+  allSections.forEach(section => {
+    const employeeId = section.querySelector(".employee-checkbox").id.split("_")[1];
+    section.style.display = selectedIds.includes(employeeId) ? "block" : "none";
+  });
 
-    document.getElementById("employeeDropdown").classList.add("hidden");
+  document.getElementById("employeeDropdown").classList.add("hidden");
 }
+
+// ------------------------------
+// Auto-filter on checkbox click (live filtering)
+// ------------------------------
 function filterEmployees() {
-    const checkboxes = document.querySelectorAll(".employee-filter-checkbox");
-    const selectedIds = Array.from(checkboxes)
-        .filter(cb => cb.checked)
-        .map(cb => cb.value);
+  const checkboxes = document.querySelectorAll(".employee-filter-checkbox");
+  const selectedIds = Array.from(checkboxes)
+    .filter(cb => cb.checked)
+    .map(cb => cb.value);
 
-    const allSections = document.querySelectorAll(".employee-section");
-    allSections.forEach(section => {
-        const employeeId = section.querySelector(".employee-checkbox").id.split("_")[1];
-        if (selectedIds.length === 0 || selectedIds.includes(employeeId)) {
-            section.style.display = "block";
-        } else {
-            section.style.display = "none";
-        }
-    });
+  const allSections = document.querySelectorAll(".employee-section");
+  allSections.forEach(section => {
+    const employeeId = section.querySelector(".employee-checkbox").id.split("_")[1];
+    if (selectedIds.length === 0 || selectedIds.includes(employeeId)) {
+      section.style.display = "block";
+    } else {
+      section.style.display = "none";
+    }
+  });
 }
 
+// ------------------------------
+// Hide dropdown when clicking outside of it
+// ------------------------------
 document.addEventListener('click', function(event) {
-    const dropdown = document.getElementById('employeeDropdown');
-    const button = document.querySelector('button[onclick="toggleEmployeeDropdown(event)"]');
+  const dropdown = document.getElementById('employeeDropdown');
+  const button = document.querySelector('button[onclick="toggleEmployeeDropdown(event)"]');
 
-    if (!dropdown || !button) return;
+  if (!dropdown || !button) return;
 
-    const isClickInsideDropdown = dropdown.contains(event.target);
-    const isClickOnButton = button.contains(event.target);
+  const isClickInsideDropdown = dropdown.contains(event.target);
+  const isClickOnButton = button.contains(event.target);
 
-    if (!isClickInsideDropdown && !isClickOnButton) {
-        dropdown.classList.add('hidden');
-    }
+  if (!isClickInsideDropdown && !isClickOnButton) {
+    dropdown.classList.add('hidden');
+  }
 });
-

@@ -1,10 +1,13 @@
-from flask import Flask, request, send_file, jsonify
-import pandas as pd
 import io
 from datetime import datetime
+
+import pandas as pd
+from flask import Flask, jsonify, request, send_file
 from sqlalchemy import and_
-from models import WorkLog, Employee
-from app import db, app
+
+from app import app, db
+from models import Employee, WorkLog
+
 
 @app.route("/export_to_excel", methods=["POST"])
 def export_to_excel():
@@ -40,10 +43,7 @@ def export_to_excel():
                 return jsonify({"error": "Неверный формат даты"}), 400
 
         query = WorkLog.query.filter(
-            and_(
-                WorkLog.log_date >= start_date,
-                WorkLog.log_date <= end_date
-            )
+            and_(WorkLog.log_date >= start_date, WorkLog.log_date <= end_date)
         )
 
         if selected_employee_ids:
@@ -65,18 +65,30 @@ def export_to_excel():
             if last_employee_id and last_employee_id != log.employee_id:
                 rows.append([""] * 6)  # Пробел в 2 строки между сотрудниками
 
-            rows.append([
-                employee.full_name,
-                log.log_date.strftime("%Y-%m-%d"),
-                log.check_in_time.strftime("%H:%M") if log.check_in_time else "--:--",
-                log.check_out_time.strftime("%H:%M") if log.check_out_time else "--:--",
-                f"{log.worked_hours:.2f}h" if log.worked_hours else "0h 0min",
-                log.holidays or "Día laboral"
-            ])
+            rows.append(
+                [
+                    employee.full_name,
+                    log.log_date.strftime("%Y-%m-%d"),
+                    (
+                        log.check_in_time.strftime("%H:%M")
+                        if log.check_in_time
+                        else "--:--"
+                    ),
+                    (
+                        log.check_out_time.strftime("%H:%M")
+                        if log.check_out_time
+                        else "--:--"
+                    ),
+                    f"{log.worked_hours:.2f}h" if log.worked_hours else "0h 0min",
+                    log.holidays or "Día laboral",
+                ]
+            )
 
             last_employee_id = log.employee_id
 
-        df = pd.DataFrame(rows, columns=["Сотрудник", "Дата", "Вход", "Выход", "Часы", "Тип дня"])
+        df = pd.DataFrame(
+            rows, columns=["Сотрудник", "Дата", "Вход", "Выход", "Часы", "Тип дня"]
+        )
 
         # Автоматическая настройка ширины колонок
         writer = pd.ExcelWriter(io.BytesIO(), engine="xlsxwriter")
@@ -95,8 +107,12 @@ def export_to_excel():
         writer._save(output)
         output.seek(0)
 
-        return send_file(output, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                         as_attachment=True, download_name="Work_Logs.xlsx")
+        return send_file(
+            output,
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            as_attachment=True,
+            download_name="Work_Logs.xlsx",
+        )
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

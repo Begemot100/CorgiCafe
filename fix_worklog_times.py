@@ -1,7 +1,8 @@
 # fix_worklog_times.py
+from datetime import datetime
+
 from app import app, db
 from models import WorkLog
-from datetime import datetime
 
 with app.app_context():
     work_logs = WorkLog.query.all()

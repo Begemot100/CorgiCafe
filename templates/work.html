@@ -19,7 +19,7 @@
                 <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Corgi Cafe Logo">
             </div>
             <div class="redirect-button-container">
-                <a href="{{ url_for('admin_panel') }}" class="redirect-button">
+                <a href="{{ url_for('dashboard.admin_panel') }}" class="redirect-button">
                     <img src="{{ url_for('static', filename='images/img_6.png') }}" alt="Redirect Icon" class="redirect-icon">
                 </a>
             </div>
@@ -191,9 +191,9 @@
                         <!-- Per-Employee Summary Panel -->
                         <div class="summary-panel" id="summary-panel-{{ employee_data.employee.id }}">
                             <h3>Resumen</h3>
-                            <p><strong>Horas totales:</strong> <span class="total-hours">{{ employee_data.summary.total_hours }}</span> h</p>
-                            <p><strong>Días totales:</strong> <span class="total-days">{{ employee_data.summary.working_days }}</span></p>
-                            <p><strong>Horas extras:</strong> <span class="overtime-hours">{{ employee_data.summary.overtime_hours }}</span> h</p>
+                                <p><strong>Horas totales:</strong> <span class="total-hours">{{ employee_data.summary.total_hours }}</span> h</p>
+                                <p><strong>Días totales:</strong> <span class="total-days">{{ employee_data.summary.working_days }}</span></p>
+                                <p><strong>Horas extras:</strong> <span class="overtime-hours">{{ employee_data.summary.overtime_hours }}</span> h</p>
                             <div class="holiday-status">
                                 <p>Vacaciones pagadas: <span class="paid-holidays badge yellow">{{ employee_data.summary.paid_holidays }}</span></p>
                                 <p>Vacaciones no pagadas: <span class="unpaid-holidays badge orange">{{ employee_data.summary.unpaid_holidays }}</span></p>

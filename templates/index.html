@@ -70,23 +70,41 @@
             </div>
 
             <div class="employee-list">
-                {% for employee in employees %}
-                <div class="employee-card"  data-id="{{ employee.id }}" data-section = "{{ employee.section }}">
-                    <div class="employee-row">
-                        <span class="employee-item">{{ employee.full_name }}</span>
-                        <span class="employee-item">{{ employee.position }}</span>
-                        <span class="employee-item">{{ employee.nie }}</span>
-                        <span class="employee-item">{{ employee.phone }}</span>
-                        <span class="employee-item">{{ employee.email }}</span>
-                        <span class="employee-item">{{ employee.start_date }}</span>
-                        <span class="employee-item">{{ employee.work_start_time }}</span>
-                        <span class="employee-item">{{ employee.work_end_time }}</span>
-                        <button class="options-btn" data-id="{{ employee.id }}">...</button>
+                    {% for employee in employees %}
+                    <div class="employee-card" data-id="{{ employee.id }}" data-section="{{ employee.section }}">
+                        <div class="employee-row">
+                            <span class="employee-item">
+                                {{ employee.full_name if employee.full_name else 'Не указано' }}
+                            </span>
+                            <span class="employee-item">
+                                {{ employee.position if employee.position else 'Не указано' }}
+                            </span>
+                            <span class="employee-item">
+                                {{ employee.nie if employee.nie else 'Не указано' }}
+                            </span>
+                            <span class="employee-item">
+                                {{ employee.phone if employee.phone else 'Не указано' }}
+                            </span>
+                            <span class="employee-item">
+                                {{ employee.email if employee.email else 'Не указано' }}
+                            </span>
+                            <span class="employee-item">
+                                {{ employee.work_start_time.strftime('%H:%M') if employee.work_start_time else 'Не указано' }}
+                            </span>
+                            <span class="employee-item">
+                                {{ employee.work_end_time.strftime('%H:%M') if employee.work_end_time else 'Не указано' }}
+                            </span>
+                            <span class="employee-item">
+                                {{ employee.start_date.strftime('%Y-%m-%d') if employee.start_date else 'Не указано' }}
+                            </span>
+
+                            <button class="options-btn" data-id="{{ employee.id }}">...</button>
+                        </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-            </div>
-        </div>
+
+
     </div>
 
     <!-- Modal for options -->
@@ -109,5 +127,144 @@
     <script src="{{ url_for('static', filename='js/newemployee.js') }}"></script>
     <script src="{{ url_for('static', filename='js/filtermainsalacosinatodo.js') }}"></script>
     <script src="{{ url_for('static', filename='js/optionsMenu.js') }}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const addModal = document.getElementById("employee-modal");
+    const editModal = document.getElementById("edit-employee-modal");
+    const addOpenBtn = document.getElementById("add-modal-btn");
+    const addCloseBtn = addModal.querySelector(".cancel-btn");
+    const editCloseBtn = editModal.querySelector("#cancel-edit-btn");
+    const addForm = document.getElementById("employee-form");
+    const editForm = document.getElementById("edit-employee-form");
+    const list = document.querySelector(".employee-list");
+    const addMessageDiv = document.getElementById("message");
+    const editMessageDiv = document.getElementById("edit-message");
+
+    const resetModal = (form, messageDiv) => {
+        form.reset();
+        messageDiv.innerHTML = "";
+    };
+
+    addOpenBtn.addEventListener("click", () => {
+        resetModal(addForm, addMessageDiv);
+        addModal.style.display = "block";
+    });
+
+    addCloseBtn.addEventListener("click", () => {
+        resetModal(addForm, addMessageDiv);
+        addModal.style.display = "none";
+    });
+
+    window.addEventListener("click", e => {
+        if (e.target === addModal) {
+            resetModal(addForm, addMessageDiv);
+            addModal.style.display = "none";
+        } else if (e.target === editModal) {
+            resetModal(editForm, editMessageDiv);
+            editModal.style.display = "none";
+        }
+    });
+
+    editCloseBtn.addEventListener("click", () => {
+        resetModal(editForm, editMessageDiv);
+        editModal.style.display = "none";
+    });
+
+    list.addEventListener("click", async e => {
+        if (e.target.classList.contains("options-btn")) {
+            const employeeId = e.target.dataset.id;
+            console.log("Edit button clicked for employee ID:", employeeId);
+            try {
+                const res = await fetch(`/employee/${employeeId}`);
+                console.log("Fetch response status:", res.status);
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                const emp = await res.json();
+                console.log("Fetched employee data:", emp);
+                if (!emp || !emp.id) throw new Error("Invalid employee data");
+                editForm.action = `/employee/edit/${employeeId}`;
+                editForm.querySelector("#employee-id").value = emp.id || "";
+                editForm.querySelector("#edit-full-name").value = emp.full_name || "";
+                editForm.querySelector("#edit-nie").value = emp.nie || "";
+                editForm.querySelector("#edit-start-date").value = emp.start_date || "";
+                editForm.querySelector("#edit-end-date").value = emp.end_date || "";
+                editForm.querySelector("#edit-work-start-time").value = emp.work_start_time || "";
+                editForm.querySelector("#edit-work-end-time").value = emp.work_end_time || "";
+                editForm.querySelector("#edit-days-per-week").value = emp.days_per_week || "";
+                editForm.querySelector("#edit-position").value = emp.position || "";
+                editForm.querySelector("#edit-section").value = emp.section || "";
+                editForm.querySelector("#edit-phone").value = emp.phone || "";
+                editForm.querySelector("#edit-email").value = emp.email || "";
+                resetModal(editForm, editMessageDiv);
+                editModal.style.display = "block";
+            } catch (err) {
+                console.error("Error fetching employee data:", err);
+                editMessageDiv.innerHTML = `<p style="color: red;">Error: ${err.message}</p>`;
+            }
+        }
+    });
+
+    addForm.addEventListener("submit", async e => {
+        e.preventDefault();
+        addMessageDiv.innerHTML = "";
+        try {
+            const res = await fetch(addForm.action, {
+                method: addForm.method,
+                body: new FormData(addForm)
+            });
+            const json = await res.json();
+            if (res.ok) {
+                const emp = json.employee;
+                if (emp) {
+                    const card = document.createElement("div");
+                    card.className = "employee-card";
+                    card.dataset.id = emp.id;
+                    card.dataset.section = emp.section || "";
+                    card.innerHTML = `
+                        <div class="employee-row">
+                            <span class="employee-item">${emp.full_name}</span>
+                            <span class="employee-item">${emp.position}</span>
+                            <span class="employee-item">${emp.nie}</span>
+                            <span class="employee-item">${emp.phone}</span>
+                            <span class="employee-item">${emp.email}</span>
+                            <span class="employee-item">${emp.start_date}</span>
+                            <span class="employee-item">${emp.work_start_time}</span>
+                            <span class="employee-item">${emp.work_end_time}</span>
+                        </div>`;
+                    list.appendChild(card);
+                    addMessageDiv.innerHTML = `<p style="color: green;">${json.message}</p>`;
+                    resetModal(addForm, addMessageDiv);
+                    addModal.style.display = "none";
+                }
+            } else {
+                addMessageDiv.innerHTML = `<p style="color: red;">Error: ${json.error || "Unknown error"}</p>`;
+            }
+        } catch (err) {
+            addMessageDiv.innerHTML = `<p style="color: red;">Error: ${err.message}</p>`;
+        }
+    });
+
+    editForm.addEventListener("submit", async e => {
+        e.preventDefault();
+        editMessageDiv.innerHTML = "";
+        try {
+            const res = await fetch(editForm.action, {
+                method: editForm.method,
+                body: new FormData(editForm)
+            });
+            const json = await res.json();
+            if (res.ok) {
+                editMessageDiv.innerHTML = `<p style="color: green;">${json.message}</p>`;
+                resetModal(editForm, editMessageDiv);
+                editModal.style.display = "none";
+                location.reload(); // Refresh to update the list
+            } else {
+                editMessageDiv.innerHTML = `<p style="color: red;">Error: ${json.error || "Unknown error"}</p>`;
+            }
+        } catch (err) {
+            editMessageDiv.innerHTML = `<p style="color: red;">Error: ${err.message}</p>`;
+        }
+    });
+});
+</script>
 </body>
 </html>

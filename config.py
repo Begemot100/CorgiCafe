@@ -1,16 +1,25 @@
 import os
+import logging
+
+
 class Config:
-    """Основные настройки приложения"""
-    SQLALCHEMY_DATABASE_URI = os.getenv(
-        "DATABASE_URL",
-        "postgresql://postgres:Kir100@localhost/corgi_db"
-    ).replace("postgres://", "postgresql://", 1)
+    BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+    SQLALCHEMY_DATABASE_URI = (
+        f"sqlite:///{os.path.join(BASE_DIR, 'instance', 'database.db')}"
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SECRET_KEY = "supersecretkey" # Защита сессий и CSRF-токенов
+    SECRET_KEY = os.environ.get("SECRET_KEY") or "your-secret-key"
+    SCHEDULER_API_ENABLED = True
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
 
-    # Настройки для загрузки файлов (если нужны)
-    UPLOAD_FOLDER = "static/uploads"
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # Максимальный размер файла — 16MB
+    # Create a console handler for logging to the console
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
 
-    # Логирование (если нужно)
-    LOGGING_LEVEL = "DEBUG"  # Можно поменять на "INFO" или "ERROR"
+    # Create a formatter and add it to the handler
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(formatter)
+
+    # Add the console handler to the logger
+    logger.addHandler(console_handler)
