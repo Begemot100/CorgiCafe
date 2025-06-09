@@ -33,15 +33,15 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/germany/corgigotico1/i
 
 # Validate configuration
 if not app.config.get("SQLALCHEMY_DATABASE_URI"):
-    logger.error("❌ SQLALCHEMY_DATABASE_URI not configured in config.py")
+    logger.error(" SQLALCHEMY_DATABASE_URI not configured in config.py")
     sys.exit(1)
 
 # Initialize database
-logger.info(f"✅ Connecting to database: {app.config['SQLALCHEMY_DATABASE_URI']}")
+logger.info(f" Connecting to database: {app.config['SQLALCHEMY_DATABASE_URI']}")
 try:
     db.init_app(app)
 except Exception as e:
-    logger.error(f"❌ Database initialization error: {e}")
+    logger.error(f" Database initialization error: {e}")
     sys.exit(1)
 
 # Initialize APScheduler
@@ -49,7 +49,7 @@ scheduler = APScheduler()
 try:
     scheduler.init_app(app)
 except Exception as e:
-    logger.error(f"❌ Scheduler initialization error: {e}")
+    logger.error(f" Scheduler initialization error: {e}")
     sys.exit(1)
 
 # Create database tables
@@ -57,9 +57,9 @@ start_time = time.time()
 with app.app_context():
     try:
         db.create_all()
-        logger.info("✅ Database tables created")
+        logger.info(" Database tables created")
     except Exception as e:
-        logger.error(f"❌ Error creating tables: {e}")
+        logger.error(f" Error creating tables: {e}")
         sys.exit(1)
 logger.info(f"⏱️ Table creation took: {time.time() - start_time:.2f} seconds")
 
