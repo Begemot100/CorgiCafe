@@ -63,7 +63,7 @@ def admin_register():
 
         return render_template("admin_register.html")
     except Exception as e:
-        Config.logger.error(f"❌ Error in admin_register: {e}")
+        Config.logger.error(f" Error in admin_register: {e}")
         return jsonify({"error": str(e)}), 500
 
 
@@ -112,7 +112,7 @@ def worker_register():
 
         return render_template("worker_register.html")
     except Exception as e:
-        Config.logger.error(f"❌ Error in worker_register: {e}")
+        Config.logger.error(f" Error in worker_register: {e}")
         return jsonify({"error": str(e)}), 500
 
 
@@ -139,7 +139,7 @@ def worker_login():
 
         return render_template("worker_login.html")
     except Exception as e:
-        Config.logger.error(f"❌ Error in worker_login: {e}")
+        Config.logger.error(f" Error in worker_login: {e}")
         return jsonify({"error": str(e)}), 500
 
 
@@ -149,7 +149,7 @@ def logout():
         session.clear()
         return redirect(url_for("auth.admin_login"))
     except Exception as e:
-        Config.logger.error(f"❌ Error in logout: {e}")
+        Config.logger.error(f" Error in logout: {e}")
         return jsonify({"error": str(e)}), 500
 
 
@@ -159,5 +159,5 @@ def worker_logout():
         session.clear()
         return redirect(url_for("auth.worker_login"))
     except Exception as e:
-        Config.logger.error(f"❌ Error in worker_logout: {e}")
+        Config.logger.error(f" Error in worker_logout: {e}")
         return jsonify({"error": str(e)}), 500
