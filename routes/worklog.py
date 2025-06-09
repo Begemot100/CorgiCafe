@@ -32,12 +32,12 @@ def calculate_employee_summary(employee_id):
     total_hours = round(total_hours)
     overtime_hours = max(0, total_hours - (working_days * 8))
 
-    Config.logger.info(f"📌 Summary for employee_id={employee_id}:")
+    Config.logger.info(f" Summary for employee_id={employee_id}:")
     Config.logger.info(
-        f"✅ total_hours={total_hours}, working_days={working_days}, overtime_hours={overtime_hours}"
+        f" total_hours={total_hours}, working_days={working_days}, overtime_hours={overtime_hours}"
     )
     Config.logger.info(
-        f"✅ paid_holidays={paid_holidays}, unpaid_holidays={unpaid_holidays}"
+        f" paid_holidays={paid_holidays}, unpaid_holidays={unpaid_holidays}"
     )
 
     return {
@@ -230,7 +230,7 @@ def work():
             end_date=end_date.isoformat(),
         )
     except Exception as e:
-        Config.logger.error(f"❌ Error in work: {e}")
+        Config.logger.error(f" Error in work: {e}")
         return jsonify({"error": str(e)}), 500
 
 
@@ -341,7 +341,7 @@ def get_work_logs():
         ]
         return jsonify({"success": True, "logs": work_logs_list})
     except Exception as e:
-        Config.logger.error(f"❌ Error in get_work_logs: {e}")
+        Config.logger.error(f" Error in get_work_logs: {e}")
         return jsonify({"error": str(e)}), 500
 
 
@@ -406,7 +406,7 @@ def update_work_log(log_id):
             }
         )
     except Exception as e:
-        Config.logger.error(f"❌ Error in update_work_log: {e}")
+        Config.logger.error(f" Error in update_work_log: {e}")
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
@@ -472,14 +472,14 @@ def add_work_log(employee_id):
 
         return jsonify({"success": True, "message": "Work log added successfully"})
     except ValueError as e:
-        Config.logger.error(f"❌ Error parsing date/time: {e}")
+        Config.logger.error(f" Error parsing date/time: {e}")
         db.session.rollback()
         return (
             jsonify({"success": False, "message": "Invalid date or time format"}),
             400,
         )
     except Exception as e:
-        Config.logger.error(f"❌ Error adding work log: {e}")
+        Config.logger.error(f" Error adding work log: {e}")
         db.session.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
 
@@ -647,5 +647,5 @@ def export_excel():
             out_path, as_attachment=True, download_name="filtered_employee_logs.xlsx"
         )
     except Exception as e:
-        Config.logger.error(f"❌ Error in export_excel: {e}")
+        Config.logger.error(f" Error in export_excel: {e}")
         return jsonify({"error": str(e)}), 500
