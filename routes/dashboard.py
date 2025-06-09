@@ -21,16 +21,16 @@ def admin_panel():
         if employees is None:
             employees = []
 
-        logger.info(f"🔍 Loaded employees: {len(employees)}")
+        logger.info(f" Loaded employees: {len(employees)}")
         try:
-            logger.info(f"🔍 Loaded employees: {len(employees)}")
+            logger.info(f" Loaded employees: {len(employees)}")
 
             return render_template('index.html', employees=employees)
         except Exception as template_error:
-            logger.error(f"❌ Template rendering error: {template_error}")
+            logger.error(f" Template rendering error: {template_error}")
             raise
     except Exception as e:
-        logger.error(f"❌ Error in admin_panel: {e}")
+        logger.error(f" Error in admin_panel: {e}")
         return jsonify({"error": str(e)}), 500
 
 
@@ -67,13 +67,13 @@ def board():
                     "daily_hours": round(work_log.worked_hours or 0, 2),
                 }
             )
-            print("💡 TEMPLATE PATH:", current_app.template_folder)
-            print("📁 TEMPLATES DIR LISTING:", os.listdir(current_app.template_folder))
+            print(" TEMPLATE PATH:", current_app.template_folder)
+            print(" TEMPLATES DIR LISTING:", os.listdir(current_app.template_folder))
         return render_template(
             "board.html", dashboard_data=dashboard_data, current_date=today
         )
     except Exception as e:
-        logger.error(f"❌ Error in board: {e}")  # Use logger
+        logger.error(f" Error in board: {e}")  # Use logger
         return jsonify({"error": str(e)}), 500
 
 
@@ -111,5 +111,5 @@ def get_dashboard_data():
             )
         return jsonify(data)
     except Exception as e:
-        logger.error(f"❌ Error in get_dashboard_data: {e}")  # Use logger
+        logger.error(f" Error in get_dashboard_data: {e}")  # Use logger
         return jsonify({"error": str(e)}), 500
