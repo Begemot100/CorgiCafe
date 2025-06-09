@@ -41,7 +41,7 @@ def get_employees():
             ]
         )
     except Exception as e:
-        Config.logger.error(f"❌ Error in get_employees: {e}")
+        Config.logger.error(f" Error in get_employees: {e}")
         return jsonify({"error": str(e)}), 500
 
 
@@ -174,7 +174,7 @@ def add_employee():
         )
     except Exception as e:
         db.session.rollback()
-        logger.error(f"❌ Error in add_employee: {e}")
+        logger.error(f" Error in add_employee: {e}")
         return jsonify({"error": str(e)}), 500
 
 
@@ -259,7 +259,7 @@ def edit_employee(id):
         return jsonify({"message": "Employee updated successfully"}), 200
     except Exception as e:
         db.session.rollback()
-        logger.error(f"❌ Error in edit_employee: {e}")
+        logger.error(f" Error in edit_employee: {e}")
         return jsonify({"error": str(e)}), 500
 
 
@@ -302,7 +302,7 @@ def get_employee(employee_id):
             }
         )
     except Exception as e:
-        logger.error(f"❌ Error in get_employee: {e}")
+        logger.error(f" Error in get_employee: {e}")
         return jsonify({"error": str(e)}), 500
 
 
