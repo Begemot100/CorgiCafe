@@ -46,7 +46,6 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(error => {
             console.error("Ошибка при check-in:", error);
-            alert("Произошла ошибка. Попробуйте снова.");
         });
     });
 
@@ -63,7 +62,6 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("✅ Ответ сервера:", data);
 
             if (data.error) {
-                alert("Ошибка: " + data.error);
                 return;
             }
 
@@ -74,7 +72,6 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(error => {
             console.error("Ошибка при check-out:", error);
-            alert("Произошла ошибка. Попробуйте снова.");
         });
     });
 });

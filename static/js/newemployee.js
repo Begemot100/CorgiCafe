@@ -19,20 +19,17 @@ document.addEventListener("DOMContentLoaded", () => {
       res  = await fetch(form.action, { method: form.method, body: new FormData(form) });
       json = await res.json();
     } catch(err) {
-      alert("Сетевая ошибка: " + err.message);
       return;
     }
 
     // если сервер вернул статус 4xx/5xx
     if (!res.ok) {
-      alert("Ошибка сервера: " + (json.error || json.message || res.statusText));
       return;
     }
 
     // теперь точно есть json.employee
     const emp = json.employee;
     if (!emp) {
-      alert("Неверный ответ от сервера: " + JSON.stringify(json));
       return;
     }
 
